@@ -2017,7 +2017,7 @@ pre .javascript .function {
   box-sizing: border-box;
   width: 100%;
   overflow: hidden;
-  background: url("https://gitee.com/yfaimisaka/pictures/blob/master/29.png") center center/cover no-repeat;
+  background: url("/images/29.png") center center/cover no-repeat;
   background-position-y: 70px;
 }
 @media (max-width: 780px) {
