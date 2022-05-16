@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="AIMISAKA">
+    
+    <title>
+        
+            python中的装饰器 |
+        
+        AIMISAKA
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.jpg">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"en","path":"search.xml"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/logo.jpg","favicon":"/images/logo.jpg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":false,"scale":false},"first_screen":{"enable":true,"background_img":"/images/29.png","description":"ANIMA"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"preload":true},"code_copy":{"enable":true,"style":"mac"},"pjax":{"enable":true},"lazyload":{"enable":true},"version":"3.4.5"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="pjax-progress-icon">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                AIMISAKA
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                HOME
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                ARCHIVES
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/links"
+                            >
+                                LINKS
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">HOME</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">ARCHIVES</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/links">LINKS</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">python中的装饰器</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/logo.jpg">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">AIMISAKA</span>
+                        
+                            <span class="author-label">TXG</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;
+        <span class="pc">2022-05-05 20:41:56</span>
+        <span class="mobile">2022-05-05 20:41</span>
+    </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/python/">python</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fas fa-file-word"></i>&nbsp;<span>758 Words</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fas fa-clock"></i>&nbsp;<span>3 Mins</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="前言："><a href="#前言：" class="headerlink" title="?前言："></a>?前言：</h2><p>Python中的一切皆对象。同样函数也是如此。</p>
+<p>装饰器（形如@staticmethod, @overload等）其实是一个<code>装饰器函数或一个装饰器类</code>对<code>装饰器装饰的函数</code>的<code>对象</code>的调用再赋值的过程, 表面上体现为以函数对象作为参数。</p>
+<h3 id="实质："><a href="#实质：" class="headerlink" title="?实质："></a>?实质：</h3><blockquote>
+<p>@decorator</p>
+<p>function_name()</p>
+<p>等价于：</p>
+<p>function_name &#x3D; decorator(function_name)</p>
+<p>（其中，有这么一个装饰器函数：</p>
+<p>def decorator(f):</p>
+<p>​		@wraps(f)</p>
+<p>​		def xxx(xx, xx…):</p>
+<p>​				… # 调用前</p>
+<p>​				return f()  # 或者直接f()来调用函数</p>
+<p>​				…  # 调用后</p>
+<p>​		return xxx</p>
+</blockquote>
+<h2 id="普通装饰器"><a href="#普通装饰器" class="headerlink" title="?普通装饰器"></a>?普通装饰器</h2><p>(直接拿菜鸟教程的例子)</p>
+<ul>
+<li>示例一：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">a_new_decorator</span>(<span class="params">a_func</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrap_the_function</span>():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;I am doing some boring work before executing a_func()&quot;</span>)</span><br><span class="line">        a_func()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;I am doing some boring work after executing a_func()&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> warp_the_function</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">a_function_requiring_decoration</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;I am the function which needs some decoration to remove my foul smell&quot;</span>)</span><br><span class="line">   </span><br><span class="line">a_function_requiring_decoration()</span><br><span class="line"><span class="comment"># outputs: &quot;I am the function which needs some decoration to remove my foul smell&quot;</span></span><br><span class="line">a_function_requiring_decoration = a_new_decorator(a_function_requiring_decoration)</span><br><span class="line"><span class="comment">#now a_function_requiring_decoration is wrapped by wrap_the_function()</span></span><br><span class="line"></span><br><span class="line">a_function_requiring_decration()</span><br><span class="line"><span class="comment">#outputs:I am doing some boring work before executing a_func()</span></span><br><span class="line"><span class="comment">#        I am the function which needs some decoration to remove my foul smell</span></span><br><span class="line"><span class="comment">#        I am doing some boring work after executing a_func()</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p>用装饰器写</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@a_new_decorator</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">a_function_requring_decoration</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;I am a function which needs some decoration to&quot;</span></span><br><span class="line">          <span class="string">&quot;remove my foul smell&quot;</span>)</span><br><span class="line">    </span><br><span class="line">a_function_requiring_decoration()</span><br><span class="line"><span class="comment"># outputs: I am doing some boring work before executing a_func()</span></span><br><span class="line"><span class="comment">#         I am the function which needs some decoration to remove my foul smell</span></span><br><span class="line"><span class="comment">#         I am doing some boring work after executing a_func()</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">#the @a_new_decorator is just a short way of saying:</span></span><br><span class="line">a_function_requiring_decoration = a_new_decorator(a_function_requiring_decoration)</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p>特殊点：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(a_function_requiring_decoration.__name__)</span><br><span class="line"><span class="comment"># Output: wrap_the_function</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>并没有输出”a_function_requiring_decoration”。而被”wrap_the_function”替代了。</p>
+</blockquote>
+<ul>
+<li><p>解决方案</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">a_new_decorator</span>(<span class="params">a_func</span>):</span><br><span class="line"><span class="meta">    @wrap(<span class="params">a_func</span>)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrap_the_function</span>():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;I am doing some boring work before execting a_func&quot;</span>)</span><br><span class="line">        a_func()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;I am doing some boring work after exexting a_func()&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> wrap_the_function</span><br><span class="line"><span class="meta">@a_new_decorator</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">a_function_requring_decoration</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;I am the function which needs some decoration to &quot;</span></span><br><span class="line">          <span class="string">&quot;remove my foul smell&quot;</span>)</span><br><span class="line"> </span><br><span class="line"><span class="built_in">print</span>(a_function_requiring_decoration.__name__)</span><br><span class="line"><span class="comment"># Output: a_function_requiring_decoration</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="？带参数的装饰器"><a href="#？带参数的装饰器" class="headerlink" title="？带参数的装饰器"></a>？带参数的装饰器</h2><ul>
+<li>思路： 创建一个包裹函数。在装饰器函数外面包一层。<ul>
+<li>例：</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">logit</span>(<span class="params">logfile=<span class="string">&quot;out.log&quot;</span></span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">logging_decrator</span>(<span class="params">func</span>):</span><br><span class="line"><span class="meta">        @wraps(<span class="params">func</span>)</span></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">wrapped_function</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">            log_string = func.__name__ + <span class="string">&quot;was called&quot;</span></span><br><span class="line">            <span class="built_in">print</span>(log_string)</span><br><span class="line">            <span class="comment"># 打开lgofile，并写入内容</span></span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(logfile, <span class="string">&quot;a&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(log_string + <span class="string">&quot;\n&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kargs)</span><br><span class="line">        <span class="keyword">return</span> wrapped_function</span><br><span class="line">    <span class="keyword">return</span> logging_decorator</span><br><span class="line"></span><br><span class="line"><span class="meta">@logit()</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">myfunc1</span>():</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"> </span><br><span class="line">myfunc1()</span><br><span class="line"><span class="comment"># Output: myfunc1 was called</span></span><br><span class="line"><span class="comment"># 现在一个叫做 out.log 的文件出现了，里面的内容就是上面的字符串</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">@logit(<span class="params">logfile=<span class="string">&#x27;func2.log&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">myfunc2</span>():</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"> </span><br><span class="line">myfunc2()</span><br><span class="line"><span class="comment"># Output: myfunc2 was called</span></span><br><span class="line"><span class="comment"># 现在一个叫做 func2.log 的文件出现了，里面的内容就是上面的字符串</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="？应用场景"><a href="#？应用场景" class="headerlink" title="？应用场景"></a>？应用场景</h2><blockquote>
+<p>授权</p>
+</blockquote>
+<blockquote>
+<p>日志</p>
+</blockquote>
+<h2 id="？装饰器类"><a href="#？装饰器类" class="headerlink" title="？装饰器类"></a>？装饰器类</h2><ul>
+<li>当你想利用装饰器执行不止一个操作时，可以用来类来包装。</li>
+</ul>
+<p>例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Logit</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, logfile=<span class="string">&#x27;out.log&#x27;</span></span>):</span><br><span class="line">        self.logfile = logfile</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__call__</span>(<span class="params">self, func</span>):</span><br><span class="line"><span class="meta">        @wraps(<span class="params">func</span>)</span></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">wrapped_function</span>(<span class="params">*args, **kargs</span>):</span><br><span class="line">            log_string = func.__name__ + <span class="string">&quot;was called&quot;</span></span><br><span class="line">            <span class="built_in">print</span>(log_string)</span><br><span class="line">            <span class="comment"># 打开logfile并写入</span></span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(self.logfile, <span class="string">&#x27;a&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(log_string + <span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">            <span class="comment"># 现在，发送一个通知</span></span><br><span class="line">            self.notify()</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kargs)</span><br><span class="line">        <span class="keyword">return</span> wrapped_function</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">notify</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 该类为logit类，什么也不做，交个子类</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EmailLogit</span>(<span class="title class_ inherited__">Logit</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Logit子类,实现日志记录的同时发邮件</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, email=<span class="string">&quot;admin@myproject.com&quot;</span>, *args, **kargs</span>):</span><br><span class="line">        self.email = email</span><br><span class="line">        <span class="built_in">super</span>(EmailLogit, self).__init__(*args, **kargs)</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">notify</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 具体实现</span></span><br><span class="line">        ...</span><br></pre></td></tr></table></figure>
+
+
+        </div>
+
+        
+
+        
+            <ul class="post-tags-box">
+                
+                    <li class="tag-item">
+                        <a href="/tags/python/">#python</a>&nbsp;
+                    </li>
+                
+            </ul>
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2022/04/29/%E6%B3%A8%E8%A7%A3%E5%92%8CAop%E9%87%8D%E5%86%99bot/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">注解和Aop重写bot</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+            <div class="comment-container">
+                <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        <i class="fas fa-comments">&nbsp;Comments</i>
+    </div>
+    
+
+        
+            
+    <div id="gitalk-container"></div>
+    <script data-pjax
+            src="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+    <script data-pjax>
+
+        function loadGitalk() {
+            let __gitalk__pathname = decodeURI(location.pathname);
+            const __gitalk__pathnameLength = __gitalk__pathname.length;
+            const __gitalk__pathnameMaxLength = 50;
+            if (__gitalk__pathnameLength > __gitalk__pathnameMaxLength) {
+                __gitalk__pathname = __gitalk__pathname.substring(0, __gitalk__pathnameMaxLength - 3) + '...';
+            }
+
+            try {
+                Gitalk && new Gitalk({
+                    clientID: 'd54e77c4efacb9e63626',
+                    clientSecret: 'c4ed7afa6e565e9d8aa35ae350eda08cb86afca4',
+                    repo: 'comment',
+                    owner: 'yfaimisaka',
+                    admin: ['yfaimisaka'],
+                    id: __gitalk__pathname,
+                    language: 'en'
+                }).render('gitalk-container');
+
+            } catch (e) {
+                window.Gitalk = null;
+            }
+        }
+
+        if ('true') {
+            const loadGitalkTimeout = setTimeout(() => {
+                loadGitalk();
+                clearTimeout(loadGitalkTimeout);
+            }, 1000);
+        } else {
+            window.addEventListener('DOMContentLoaded', loadGitalk);
+        }
+    </script>
+
+
+
+        
+    
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">AIMISAKA</a>
+        </div>
+        
+            <script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.5</a>
+        </div>
+        
+            <div class="icp-info info-item"><a target="_blank" rel="nofollow" href="https://beian.miit.gov.cn">赣ICP备2021011694号-1</a></div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+            <li class="go-comment">
+                <i class="fas fa-comment"></i>
+            </li>
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80%EF%BC%9A"><span class="nav-text">?前言：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E8%B4%A8%EF%BC%9A"><span class="nav-text">?实质：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%99%AE%E9%80%9A%E8%A3%85%E9%A5%B0%E5%99%A8"><span class="nav-text">?普通装饰器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%9F%E5%B8%A6%E5%8F%82%E6%95%B0%E7%9A%84%E8%A3%85%E9%A5%B0%E5%99%A8"><span class="nav-text">？带参数的装饰器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%9F%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-text">？应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%9F%E8%A3%85%E9%A5%B0%E5%99%A8%E7%B1%BB"><span class="nav-text">？装饰器类</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/utils.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/main.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/header-shrink.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/back2top.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/dark-light-toggle.js"></script>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/local-search.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/code-copy.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/lazyload.js"></script>
+
+
+<div class="post-scripts pjax">
+    
+        <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/left-side-toggle.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/libs/anime.min.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/toc.js"></script>
+    
+</div>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/libs/pjax.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+            // scrollTo: true,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart();
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd();
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'));
+            KEEP.refresh();
+        });
+    });
+</script>
+
+
+
+</body>
+</html>
