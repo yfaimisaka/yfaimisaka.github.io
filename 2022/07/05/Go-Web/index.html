@@ -204,6 +204,8 @@
 <li><p><code>(var) DefaultServeMux</code>: ListenAndServe(string, Handler) error 中第二个参数的默认值，实质是一个指向ServeMux的指针，但同时又实现了Handler接口(故可以充当第二个参数的默认值)</p>
 </li>
 <li><p><code>(func) NewServeMux()</code>: 返回一个ServeMux</p>
+</li>
+</ul>
 <h3 id="服务器"><a href="#服务器" class="headerlink" title="?  服务器"></a>?  服务器</h3><blockquote>
 <p>负责启动监听和配置服务</p>
 <p>如果简单配置可以直接调<code>http.ListenAndServe</code>函数来进行监听，复杂配置则需要构建一个Server结构体来调用其ListenAndServe方法</p>
@@ -216,12 +218,14 @@
 <li><p><code>(func) ListenAndServe(addr string, handler Handler) error</code>: 开启监听和进行处理，是整个web应用的启动器</p>
 </li>
 <li><p><code>(func) ListenAndServeTLS(addr, certFile, keyFile string, handler Handler) error</code>: ListenAndServe的https版本</p>
+</li>
+</ul>
 <h3 id="处理器和处理器函数"><a href="#处理器和处理器函数" class="headerlink" title="?  处理器和处理器函数"></a>?  处理器和处理器函数</h3><blockquote>
 <p>Go web中实际处理请求的函数或类型</p>
 <p>处理器：实现了Handler接口的任意类型，可以是结构体，函数类型等</p>
 <p>处理器函数：普通的函数，但是必须要以 <code>http.ResponseWriter</code>和<code>*http.Request</code>为参数</p>
 </blockquote>
-</li>
+<ul>
 <li><p><code>(interface) Handler &#123;ServeHTTP(ResponseWriter, *Request)&#125;</code>: 处理器接口，实现了该接口的即为处理器</p>
 </li>
 <li><p><code>(func) http.Handle(pattern string, handler Handler)</code>: 将Handler和DefaultServeMux (或<code>自定义的ServeMux</code>) 绑定，使其处理<code>pattern</code>上的请求。实质是<code>ServeMux</code>的方法，方便调用故在http包中创建。实质:</p>
@@ -230,9 +234,7 @@
 
 </li>
 <li><p><code>(func) http.HandleFunc(pattern string, handler func(ResponseWriter, *Request))</code>: 将处理器函数与<code>ServeMux</code>绑定并监听<code>pattern</code>路径。实质会被转换为一个<code>Handler</code>:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// http.HandleFunc</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">HandleFunc</span><span class="params">(pattern <span class="type">string</span>, handler <span class="keyword">func</span>(ResponseWriter, *Request)</span></span>) &#123;</span><br><span class="line">    DefaultServeMux.HandleFunc(pattern, handler)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ServeMux.HandleFunc</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(mux *ServeMux)</span></span> HandleFunc(pattern <span class="type">string</span>, handler <span class="function"><span class="keyword">func</span><span class="params">(ResponseWriter, *Request)</span></span>) &#123;</span><br><span class="line">    mux.Handle(pattern, HandlerFunc(handler))</span><br><span class="line">&#125; <span class="comment">// 通过显式类型转换将底层类型相同的handler转换为HandlerFunc类型</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// HandlerFunc是个函数类型</span></span><br><span class="line"><span class="keyword">type</span> HandlerFunc <span class="function"><span class="keyword">func</span><span class="params">(ResponseWriter, *Request)</span></span></span><br><span class="line"><span class="comment">// 并且它实现了Handler接口，也就是说，HandlerFunc类型是个处理器(Handler),故调用HandleFunc方法实质是调用Handle方法，且将一个普通函数类型的参数转换成了一个处理器</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(f HandlerFunc)</span></span> ServeHTTP(w ResponseWriter, r *Request) &#123;</span><br><span class="line">	f(w, r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// http.HandleFunc</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">HandleFunc</span><span class="params">(pattern <span class="type">string</span>, handler <span class="keyword">func</span>(ResponseWriter, *Request)</span></span>) &#123;</span><br><span class="line">    DefaultServeMux.HandleFunc(pattern, handler)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ServeMux.HandleFunc</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(mux *ServeMux)</span></span> HandleFunc(pattern <span class="type">string</span>, handler <span class="function"><span class="keyword">func</span><span class="params">(ResponseWriter, *Request)</span></span>) &#123;</span><br><span class="line">    mux.Handle(pattern, HandlerFunc(handler))</span><br><span class="line">&#125; <span class="comment">// 通过显式类型转换将底层类型相同的handler转换为HandlerFunc类型</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// HandlerFunc是个函数类型</span></span><br><span class="line"><span class="keyword">type</span> HandlerFunc <span class="function"><span class="keyword">func</span><span class="params">(ResponseWriter, *Request)</span></span></span><br><span class="line"><span class="comment">// 并且它实现了Handler接口，也就是说，HandlerFunc类型是个处理器(Handler),故调用HandleFunc方法实质是调用Handle方法，且将一个普通函数类型的参数转换成了一个处理器</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(f HandlerFunc)</span></span> ServeHTTP(w ResponseWriter, r *Request) &#123;</span><br><span class="line">  f(w, r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
 
         </div>
