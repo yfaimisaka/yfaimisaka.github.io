@@ -196,9 +196,9 @@
         
 
         <div class="article-content markdown-body">
-            <h2 id="？前言："><a href="#？前言：" class="headerlink" title="？前言："></a>？前言：</h2><p>之前就有个想法把bot用spring重写一下。了解完一些基础的东西后终于能开写了。</p>
-<h2 id="？基于注解加反射"><a href="#？基于注解加反射" class="headerlink" title="？基于注解加反射"></a>？基于注解加反射</h2><h3 id="推："><a href="#推：" class="headerlink" title="推："></a>推：</h3><p>这一点是看了<a target="_blank" rel="noopener" href="https://nuotian.furry.pro/blog/archives/244"><code>诺天的博客</code></a>。</p>
-<h3 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h3><ul>
+            <h2 id="？前言"><a href="#？前言" class="headerlink" title="？前言"></a>？前言</h2><p>之前就有个想法把bot用spring重写一下。了解完一些基础的东西后终于能开写了。</p>
+<h2 id="？基于注解加反射"><a href="#？基于注解加反射" class="headerlink" title="？基于注解加反射"></a>？基于注解加反射</h2><h3 id="推"><a href="#推" class="headerlink" title="推"></a>推</h3><p>这一点是看了<a target="_blank" rel="noopener" href="https://nuotian.furry.pro/blog/archives/244"><code>诺天的博客</code></a>。</p>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
 <li><ol>
 <li>写个自定义注解用以标记方法</li>
 </ol>
@@ -222,7 +222,7 @@
 </ol>
 </li>
 </ul>
-<h3 id="补充："><a href="#补充：" class="headerlink" title="补充："></a>补充：</h3><p>博客里写的已经很详细了。但是总感觉有些功能还可以再补充一下：</p>
+<h3 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h3><p>博客里写的已经很详细了。但是总感觉有些功能还可以再补充一下：</p>
 <ul>
 <li><p>逻辑判断和多种权限：</p>
 <p>  一：<a class="link"   target="_blank" rel="noopener" href="https://nuotian.furry.pro/blog/" >诺天<i class="fas fa-external-link-alt"></i></a>写的消息的逻辑判断是放在注解中，再和bot接收到的消息进行对比来实现的。但是这样</p>
@@ -252,9 +252,9 @@
 </ul>
 </li>
 </ul>
-<h2 id="？基于注解和切面编程-Aop-："><a href="#？基于注解和切面编程-Aop-：" class="headerlink" title="？基于注解和切面编程(Aop)："></a>？基于注解和切面编程(Aop)：</h2><p>因为Aop是根据反射开发的，于是我想能不能用Aop写一个。</p>
-<h3 id="思路：-1"><a href="#思路：-1" class="headerlink" title="思路："></a>思路：</h3><p>利用Aop对被指定注解标记的方法进行增强。在方法执行前进行一个判断。</p>
-<h3 id="代码："><a href="#代码：" class="headerlink" title="代码："></a>代码：</h3><p>Aop部分：</p>
+<h2 id="？基于注解和切面编程-Aop"><a href="#？基于注解和切面编程-Aop" class="headerlink" title="？基于注解和切面编程(Aop)"></a>？基于注解和切面编程(Aop)</h2><p>因为Aop是根据反射开发的，于是我想能不能用Aop写一个。</p>
+<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><p>利用Aop对被指定注解标记的方法进行增强。在方法执行前进行一个判断。</p>
+<h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><p>Aop部分：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">类上标注<span class="meta">@Aspect</span>注解</span><br><span class="line"></span><br><span class="line"><span class="comment">// 切入点 实际切入的方法</span></span><br><span class="line"><span class="comment">// 注意是对Events切入，因为多个Event注解其实在获取的时候会转换成@Events(&#123;@Event(xx), @Event(xx)&#125;)</span></span><br><span class="line"><span class="meta">@PointCut(&quot;@annotation(com.yanfang.animabotaop.annotations.Events)&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">judgeMethodPointCut</span><span class="params">()</span> &#123;&#125; <span class="comment">// 切入方法？</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 环绕通知</span></span><br><span class="line"><span class="comment">// &amp;&amp; @annotation(events)是传入参数给通知方法的一种手段，可以省去声明</span></span><br><span class="line"><span class="comment">// around方法参数名要和@Around中一致</span></span><br><span class="line"><span class="comment">// ProceedingJoinPoint 是环绕通知特有的，是JoinPoint的子接口，其他通知为JoinPoint。</span></span><br><span class="line"><span class="comment">// 该参数的功能很强大</span></span><br><span class="line"><span class="meta">@Around(&quot;judgeMethodPointCut() &amp;&amp; @annotation(events)&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">around</span><span class="params">(<span class="meta">@NotNull</span> ProceedingJoinPoint jpt, <span class="meta">@NotNull</span> Events events)</span> <span class="keyword">throws</span> Throwable</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">for</span> (Event eventAnnotation : events.value())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 获取实参值（注意是“值”</span></span><br><span class="line">        Object[] argValues = jpt.getArgs();</span><br><span class="line">        <span class="comment">// 获取传入的event，这里默认所有方法第一个参数都是MessageEvent</span></span><br><span class="line">        <span class="type">MessageEvent</span> <span class="variable">event</span> <span class="operator">=</span> (MessageEvent) argValues[<span class="number">0</span>];</span><br><span class="line">        <span class="comment">// 进行逻辑判断，这里和用反射时一样</span></span><br><span class="line">        <span class="keyword">if</span> (eventAnnotation.authority())</span><br><span class="line">            &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;已授权&quot;</span>);</span><br><span class="line">                <span class="comment">// 有复杂逻辑就将judgeByMethod设为true， 交给方法进行复杂逻辑处理</span></span><br><span class="line">                <span class="keyword">if</span> (eventAnnotation.judgeByMethod() || (eventAnnotation.message().equals(event.getMessage().contentToString())))</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">if</span> (event.getSubject() <span class="keyword">instanceof</span> Group &amp;&amp; eventAnnotation.eventType() == EventEnum.GROUPEVENT)</span><br><span class="line">                    &#123;</span><br><span class="line">                        joinPoint.proceed(argValues);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (event.getSubject() <span class="keyword">instanceof</span> Friend &amp;&amp; eventAnnotation.eventType() == EventEnum.MASTEREVENT)</span><br><span class="line">                    &#123;</span><br><span class="line">                        joinPoint.proceed(argValues);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (event.getSubject() <span class="keyword">instanceof</span> Member &amp;&amp; eventAnnotation.eventType() == EventEnum.TEMPEVENT)</span><br><span class="line">                    &#123;</span><br><span class="line">                        joinPoint.proceed(argValues);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
@@ -267,7 +267,7 @@
 
 <p>结果：</p>
 <p>authority为true时发送了get， 为false时没发送get。说明执行了环绕通知</p>
-<h3 id="坑："><a href="#坑：" class="headerlink" title="坑："></a>坑：</h3><ul>
+<h3 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h3><ul>
 <li>注意Aop和反射不同的一点是：反射可以帮助传入实参；而Aop只能获取方法被传入的实参进行处理，而不能传入参数（毕竟Aop的原衷是不影响方法本身的情况下进行对方法的增强。<ul>
 <li>而实参在监听器方法里传入</li>
 </ul>
@@ -307,7 +307,7 @@
                     <div class="article-prev">
                         <a class="prev"
                            rel="prev"
-                           href="/2022/05/05/python%E4%B8%AD%E7%9A%84%E8%A3%85%E9%A5%B0%E5%99%A8/"
+                           href="/2022/05/05/Decorator-In-Python/"
                         >
                             <span class="left arrow-icon flex-center">
                               <i class="fas fa-chevron-left"></i>
@@ -486,7 +486,7 @@
         <aside class="page-aside">
             <div class="post-toc-wrap">
     <div class="post-toc">
-        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%9F%E5%89%8D%E8%A8%80%EF%BC%9A"><span class="nav-text">？前言：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%9F%E5%9F%BA%E4%BA%8E%E6%B3%A8%E8%A7%A3%E5%8A%A0%E5%8F%8D%E5%B0%84"><span class="nav-text">？基于注解加反射</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A8%EF%BC%9A"><span class="nav-text">推：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF%EF%BC%9A"><span class="nav-text">思路：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A5%E5%85%85%EF%BC%9A"><span class="nav-text">补充：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%9F%E5%9F%BA%E4%BA%8E%E6%B3%A8%E8%A7%A3%E5%92%8C%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8B-Aop-%EF%BC%9A"><span class="nav-text">？基于注解和切面编程(Aop)：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF%EF%BC%9A-1"><span class="nav-text">思路：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%EF%BC%9A"><span class="nav-text">代码：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%91%EF%BC%9A"><span class="nav-text">坑：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%9F%E6%AF%94%E8%BE%83%E4%B8%8E%E6%80%BB%E7%BB%93"><span class="nav-text">？比较与总结</span></a></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%9F%E5%89%8D%E8%A8%80"><span class="nav-text">？前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%9F%E5%9F%BA%E4%BA%8E%E6%B3%A8%E8%A7%A3%E5%8A%A0%E5%8F%8D%E5%B0%84"><span class="nav-text">？基于注解加反射</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A8"><span class="nav-text">推</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-text">思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A5%E5%85%85"><span class="nav-text">补充</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%9F%E5%9F%BA%E4%BA%8E%E6%B3%A8%E8%A7%A3%E5%92%8C%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8B-Aop"><span class="nav-text">？基于注解和切面编程(Aop)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-1"><span class="nav-text">思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="nav-text">代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%91"><span class="nav-text">坑</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%9F%E6%AF%94%E8%BE%83%E4%B8%8E%E6%80%BB%E7%BB%93"><span class="nav-text">？比较与总结</span></a></li></ol>
     </div>
 </div>
         </aside>
