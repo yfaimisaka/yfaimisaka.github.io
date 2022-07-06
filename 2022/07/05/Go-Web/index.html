@@ -179,12 +179,12 @@
     
     
         <span class="article-wordcount article-meta-item">
-            <i class="fas fa-file-word"></i>&nbsp;<span>659 Words</span>
+            <i class="fas fa-file-word"></i>&nbsp;<span>760 Words</span>
         </span>
     
     
         <span class="article-min2read article-meta-item">
-            <i class="fas fa-clock"></i>&nbsp;<span>2 Mins</span>
+            <i class="fas fa-clock"></i>&nbsp;<span>3 Mins</span>
         </span>
     
     
@@ -201,10 +201,17 @@
 <p>Go中web应用需要对客户端的请求响应，为了将不同请求URL转发到不同的处理器(Handler)进行处理需要用到多路复用器(ServeMux)</p>
 </blockquote>
 <ul>
-<li><p><code>(var) DefaultServeMux</code>: ListenAndServe(string, Handler) error 中第二个参数的默认值，实质是一个指向ServeMux的指针，但同时又实现了Handler接口(故可以充当第二个参数的默认值)</p>
+<li><p><code>(var) DefaultServeMux</code>: <code>ListenAndServe(string, Handler) error</code> 中第二个参数的默认值，实质是一个指向<code>ServeMux</code>类型的指针，是<code>ServeMux</code>的一个实例，但<code>ServeMux</code>同时又实现了Handler接口(故可以充当第二个参数的默认值)</p>
+<p><strong>源码:</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DefaultServeMux is the default ServeMux used by Serve.</span></span><br><span class="line"><span class="keyword">var</span> DefaultServeMux = &amp;defaultServeMux</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> defaultServeMux ServeMux</span><br></pre></td></tr></table></figure>
+
+
 </li>
-<li><p><code>(func) NewServeMux()</code>: 返回一个ServeMux</p>
+<li><p><code>(func) NewServeMux()</code>: 返回一个<code>ServeMux</code></p>
 </li>
+<li><p><code>(struct) ServeMux</code>: 多路复用器结构，负责URL的路径和处理的映射，以及通过<code>自身的ServeHTTP</code>方法调用URL映射对应的<code>处理器的ServeHTTP方法</code></p>
+<p><strong>源码:</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> ServeMux <span class="keyword">struct</span> &#123;</span><br><span class="line">	mu    sync.RWMutex</span><br><span class="line">	m     <span class="keyword">map</span>[<span class="type">string</span>]muxEntry</span><br><span class="line">	es    []muxEntry <span class="comment">// slice of entries sorted from longest to shortest.</span></span><br><span class="line">	hosts <span class="type">bool</span>       <span class="comment">// whether any patterns contain hostnames</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
 <h3 id="服务器"><a href="#服务器" class="headerlink" title="?  服务器"></a>?  服务器</h3><blockquote>
 <p>负责启动监听和配置服务</p>
@@ -212,7 +219,7 @@
 </blockquote>
 <ul>
 <li><p><code>(struct) Server</code>: 用于细化配置的结构体</p>
-<p>源码:</p>
+<p><strong>源码:</strong></p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Server <span class="keyword">struct</span> &#123;</span><br><span class="line">    Addr <span class="type">string</span></span><br><span class="line">    Handler Handler</span><br><span class="line">    </span><br><span class="line">    TLSConfig *tls.Config</span><br><span class="line">    </span><br><span class="line">    ReadTimeout time.Duration</span><br><span class="line">    ReadHeaderTimeout time.Duration</span><br><span class="line">    WriteTimeout time.Duration</span><br><span class="line">    IdleTimeout time.Duration</span><br><span class="line">    </span><br><span class="line">    MaxHeaderBytes <span class="type">int</span></span><br><span class="line">    </span><br><span class="line">    TLSNextProto <span class="keyword">map</span>[<span class="type">string</span>]<span class="function"><span class="keyword">func</span><span class="params">(*Server, *tls.Conn, Handler)</span></span></span><br><span class="line">    </span><br><span class="line">    ConnState <span class="function"><span class="keyword">func</span><span class="params">(net.Conn, ConnState)</span></span></span><br><span class="line">    </span><br><span class="line">    ErrorLog *log.Logger</span><br><span class="line">    </span><br><span class="line">    BaseContext <span class="function"><span class="keyword">func</span><span class="params">(net.Listener)</span></span> context.Context</span><br><span class="line">    ConnContext <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, c net.Conn)</span></span> context.Context</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 <li><p><code>(func) ListenAndServe(addr string, handler Handler) error</code>: 开启监听和进行处理，是整个web应用的启动器</p>
@@ -228,7 +235,7 @@
 <ul>
 <li><p><code>(interface) Handler &#123;ServeHTTP(ResponseWriter, *Request)&#125;</code>: 处理器接口，实现了该接口的即为处理器</p>
 </li>
-<li><p><code>(func) http.Handle(pattern string, handler Handler)</code>: 将Handler和DefaultServeMux (或<code>自定义的ServeMux</code>) 绑定，使其处理<code>pattern</code>上的请求。实质是<code>ServeMux</code>的方法，方便调用故在http包中创建。实质:</p>
+<li><p><code>(func) http.Handle(pattern string, handler Handler)</code>: 将Handler和DefaultServeMux (或<code>自定义的ServeMux</code>) 绑定，使其处理<code>pattern</code>上的请求。实质是<code>ServeMux</code>的方法，方便调用故在http包中创建。<strong>实质:</strong></p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// http.Handle</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Handle</span><span class="params">(pattern <span class="type">string</span>, handler Handleer)</span></span> &#123;</span><br><span class="line">    DefaultServeMux.Handle(pattern, handler)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在server.go源码中</span></span><br></pre></td></tr></table></figure>
 
 
