@@ -1,79 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>python中的装饰器</title>
-    <url>/2022/05/05/Decorator-In-Python/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>Python中的一切皆对象。同样函数也是如此。</p>
-<p>装饰器（形如@staticmethod, @overload等）其实是一个<code>装饰器函数或一个装饰器类</code>对<code>装饰器装饰的函数</code>的<code>对象</code>的调用再赋值的过程, 表面上体现为以函数对象作为参数。</p>
-<h3 id="实质"><a href="#实质" class="headerlink" title="? 实质"></a>? 实质</h3><blockquote>
-<p>@decorator</p>
-<p>function_name()</p>
-<p>等价于：</p>
-<p>function_name &#x3D; decorator(function_name)</p>
-<p>（其中，有这么一个装饰器函数：</p>
-<p>def decorator(f):</p>
-<p>​		@wraps(f)</p>
-<p>​		def xxx(xx, xx…):</p>
-<p>​				… # 调用前</p>
-<p>​				return f()  # 或者直接f()来调用函数</p>
-<p>​				…  # 调用后</p>
-<p>​		return xxx</p>
-</blockquote>
-<h2 id="普通装饰器"><a href="#普通装饰器" class="headerlink" title="? 普通装饰器"></a>? 普通装饰器</h2><p>(直接拿菜鸟教程的例子)</p>
-<ul>
-<li>示例一：</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">a_new_decorator</span>(<span class="params">a_func</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrap_the_function</span>():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;I am doing some boring work before executing a_func()&quot;</span>)</span><br><span class="line">        a_func()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;I am doing some boring work after executing a_func()&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> warp_the_function</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">a_function_requiring_decoration</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;I am the function which needs some decoration to remove my foul smell&quot;</span>)</span><br><span class="line">   </span><br><span class="line">a_function_requiring_decoration()</span><br><span class="line"><span class="comment"># outputs: &quot;I am the function which needs some decoration to remove my foul smell&quot;</span></span><br><span class="line">a_function_requiring_decoration = a_new_decorator(a_function_requiring_decoration)</span><br><span class="line"><span class="comment">#now a_function_requiring_decoration is wrapped by wrap_the_function()</span></span><br><span class="line"></span><br><span class="line">a_function_requiring_decration()</span><br><span class="line"><span class="comment">#outputs:I am doing some boring work before executing a_func()</span></span><br><span class="line"><span class="comment">#        I am the function which needs some decoration to remove my foul smell</span></span><br><span class="line"><span class="comment">#        I am doing some boring work after executing a_func()</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<ul>
-<li><p>用装饰器写</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">@a_new_decorator</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">a_function_requring_decoration</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;I am a function which needs some decoration to&quot;</span></span><br><span class="line">          <span class="string">&quot;remove my foul smell&quot;</span>)</span><br><span class="line">    </span><br><span class="line">a_function_requiring_decoration()</span><br><span class="line"><span class="comment"># outputs: I am doing some boring work before executing a_func()</span></span><br><span class="line"><span class="comment">#         I am the function which needs some decoration to remove my foul smell</span></span><br><span class="line"><span class="comment">#         I am doing some boring work after executing a_func()</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">#the @a_new_decorator is just a short way of saying:</span></span><br><span class="line">a_function_requiring_decoration = a_new_decorator(a_function_requiring_decoration)</span><br></pre></td></tr></table></figure>
-
-
-
-<ul>
-<li><p>特殊点：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="built_in">print</span>(a_function_requiring_decoration.__name__)</span><br><span class="line"><span class="comment"># Output: wrap_the_function</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>并没有输出”a_function_requiring_decoration”。而被”wrap_the_function”替代了。</p>
-</blockquote>
-<ul>
-<li><p>解决方案</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">a_new_decorator</span>(<span class="params">a_func</span>):</span><br><span class="line"><span class="meta">    @wrap(<span class="params">a_func</span>)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrap_the_function</span>():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;I am doing some boring work before execting a_func&quot;</span>)</span><br><span class="line">        a_func()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;I am doing some boring work after exexting a_func()&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> wrap_the_function</span><br><span class="line"><span class="meta">@a_new_decorator</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">a_function_requring_decoration</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;I am the function which needs some decoration to &quot;</span></span><br><span class="line">          <span class="string">&quot;remove my foul smell&quot;</span>)</span><br><span class="line"> </span><br><span class="line"><span class="built_in">print</span>(a_function_requiring_decoration.__name__)</span><br><span class="line"><span class="comment"># Output: a_function_requiring_decoration</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="？带参数的装饰器"><a href="#？带参数的装饰器" class="headerlink" title="？带参数的装饰器"></a>？带参数的装饰器</h2><ul>
-<li>思路： 创建一个包裹函数。在装饰器函数外面包一层。<ul>
-<li>例：</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">logit</span>(<span class="params">logfile=<span class="string">&quot;out.log&quot;</span></span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">logging_decrator</span>(<span class="params">func</span>):</span><br><span class="line"><span class="meta">        @wraps(<span class="params">func</span>)</span></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">wrapped_function</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">            log_string = func.__name__ + <span class="string">&quot;was called&quot;</span></span><br><span class="line">            <span class="built_in">print</span>(log_string)</span><br><span class="line">            <span class="comment"># 打开lgofile，并写入内容</span></span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(logfile, <span class="string">&quot;a&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(log_string + <span class="string">&quot;\n&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kargs)</span><br><span class="line">        <span class="keyword">return</span> wrapped_function</span><br><span class="line">    <span class="keyword">return</span> logging_decorator</span><br><span class="line"></span><br><span class="line"><span class="meta">@logit()</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">myfunc1</span>():</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"> </span><br><span class="line">myfunc1()</span><br><span class="line"><span class="comment"># Output: myfunc1 was called</span></span><br><span class="line"><span class="comment"># 现在一个叫做 out.log 的文件出现了，里面的内容就是上面的字符串</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">@logit(<span class="params">logfile=<span class="string">&#x27;func2.log&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">myfunc2</span>():</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"> </span><br><span class="line">myfunc2()</span><br><span class="line"><span class="comment"># Output: myfunc2 was called</span></span><br><span class="line"><span class="comment"># 现在一个叫做 func2.log 的文件出现了，里面的内容就是上面的字符串</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="？应用场景"><a href="#？应用场景" class="headerlink" title="？应用场景"></a>？应用场景</h2><blockquote>
-<p>授权</p>
-</blockquote>
-<blockquote>
-<p>日志</p>
-</blockquote>
-<h2 id="？装饰器类"><a href="#？装饰器类" class="headerlink" title="？装饰器类"></a>？装饰器类</h2><ul>
-<li>当你想利用装饰器执行不止一个操作时，可以用来类来包装。</li>
-</ul>
-<p>例：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Logit</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, logfile=<span class="string">&#x27;out.log&#x27;</span></span>):</span><br><span class="line">        self.logfile = logfile</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__call__</span>(<span class="params">self, func</span>):</span><br><span class="line"><span class="meta">        @wraps(<span class="params">func</span>)</span></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">wrapped_function</span>(<span class="params">*args, **kargs</span>):</span><br><span class="line">            log_string = func.__name__ + <span class="string">&quot;was called&quot;</span></span><br><span class="line">            <span class="built_in">print</span>(log_string)</span><br><span class="line">            <span class="comment"># 打开logfile并写入</span></span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(self.logfile, <span class="string">&#x27;a&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(log_string + <span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">            <span class="comment"># 现在，发送一个通知</span></span><br><span class="line">            self.notify()</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kargs)</span><br><span class="line">        <span class="keyword">return</span> wrapped_function</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">notify</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 该类为logit类，什么也不做，交个子类</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EmailLogit</span>(<span class="title class_ inherited__">Logit</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Logit子类,实现日志记录的同时发邮件</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, email=<span class="string">&quot;admin@myproject.com&quot;</span>, *args, **kargs</span>):</span><br><span class="line">        self.email = email</span><br><span class="line">        <span class="built_in">super</span>(EmailLogit, self).__init__(*args, **kargs)</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">notify</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 具体实现</span></span><br><span class="line">        ...</span><br><span class="line">       </span><br><span class="line"><span class="comment"># 调用时与装饰器函数类似。使用@Logit</span></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>Python</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Generator-In-Python</title>
     <url>/2022/07/06/Generator-In-Python/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p><code>yield</code>是Python极其重要的一个关键字，它与Python中的<code>生成器</code>密切相关，并且它的用法时不时让人困惑…</p>
@@ -97,61 +24,6 @@
 ]]></content>
       <tags>
         <tag>Python</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Go-Web</title>
-    <url>/2022/07/05/Go-Web/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>最近看了下<code>Go Web编程</code>这本书，再去看了下源码，想对<code>net/http</code>包中的一些关键的函数，接口的定义和关系做一个记录</p>
-<h3 id="多路复用器"><a href="#多路复用器" class="headerlink" title="? 多路复用器"></a>? 多路复用器</h3><blockquote>
-<p>Go中web应用需要对客户端的请求响应，为了将不同请求URL转发到不同的处理器(Handler)进行处理需要用到多路复用器(ServeMux)</p>
-</blockquote>
-<ul>
-<li><p><code>(var) DefaultServeMux</code>: <code>ListenAndServe(string, Handler) error</code> 中第二个参数的默认值，实质是一个指向<code>ServeMux</code>类型的指针，是<code>ServeMux</code>的一个实例，但<code>ServeMux</code>同时又实现了Handler接口(故可以充当第二个参数的默认值)</p>
-<p><strong>源码:</strong></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// DefaultServeMux is the default ServeMux used by Serve.</span></span><br><span class="line"><span class="keyword">var</span> DefaultServeMux = &amp;defaultServeMux</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> defaultServeMux ServeMux</span><br></pre></td></tr></table></figure>
-
-
-</li>
-<li><p><code>(func) NewServeMux()</code>: 返回一个<code>ServeMux</code></p>
-</li>
-<li><p><code>(struct) ServeMux</code>: 多路复用器结构，负责URL的路径和处理的映射，以及通过<code>自身的ServeHTTP</code>方法调用URL映射对应的<code>处理器的ServeHTTP方法</code></p>
-<p><strong>源码:</strong></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> ServeMux <span class="keyword">struct</span> &#123;</span><br><span class="line">	mu    sync.RWMutex</span><br><span class="line">	m     <span class="keyword">map</span>[<span class="type">string</span>]muxEntry</span><br><span class="line">	es    []muxEntry <span class="comment">// slice of entries sorted from longest to shortest.</span></span><br><span class="line">	hosts <span class="type">bool</span>       <span class="comment">// whether any patterns contain hostnames</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="服务器"><a href="#服务器" class="headerlink" title="?  服务器"></a>?  服务器</h3><blockquote>
-<p>负责启动监听和配置服务</p>
-<p>如果简单配置可以直接调<code>http.ListenAndServe</code>函数来进行监听，复杂配置则需要构建一个Server结构体来调用其ListenAndServe方法</p>
-</blockquote>
-<ul>
-<li><p><code>(struct) Server</code>: 用于细化配置的结构体</p>
-<p><strong>源码:</strong></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Server <span class="keyword">struct</span> &#123;</span><br><span class="line">    Addr <span class="type">string</span></span><br><span class="line">    Handler Handler</span><br><span class="line">    </span><br><span class="line">    TLSConfig *tls.Config</span><br><span class="line">    </span><br><span class="line">    ReadTimeout time.Duration</span><br><span class="line">    ReadHeaderTimeout time.Duration</span><br><span class="line">    WriteTimeout time.Duration</span><br><span class="line">    IdleTimeout time.Duration</span><br><span class="line">    </span><br><span class="line">    MaxHeaderBytes <span class="type">int</span></span><br><span class="line">    </span><br><span class="line">    TLSNextProto <span class="keyword">map</span>[<span class="type">string</span>]<span class="function"><span class="keyword">func</span><span class="params">(*Server, *tls.Conn, Handler)</span></span></span><br><span class="line">    </span><br><span class="line">    ConnState <span class="function"><span class="keyword">func</span><span class="params">(net.Conn, ConnState)</span></span></span><br><span class="line">    </span><br><span class="line">    ErrorLog *log.Logger</span><br><span class="line">    </span><br><span class="line">    BaseContext <span class="function"><span class="keyword">func</span><span class="params">(net.Listener)</span></span> context.Context</span><br><span class="line">    ConnContext <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, c net.Conn)</span></span> context.Context</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>(func) ListenAndServe(addr string, handler Handler) error</code>: 开启监听和进行处理，是整个web应用的启动器</p>
-</li>
-<li><p><code>(func) ListenAndServeTLS(addr, certFile, keyFile string, handler Handler) error</code>: ListenAndServe的https版本</p>
-</li>
-</ul>
-<h3 id="处理器和处理器函数"><a href="#处理器和处理器函数" class="headerlink" title="?  处理器和处理器函数"></a>?  处理器和处理器函数</h3><blockquote>
-<p>Go web中实际处理请求的函数或类型</p>
-<p>处理器：实现了Handler接口的任意类型，可以是结构体，函数类型等</p>
-<p>处理器函数：普通的函数，但是必须要以 <code>http.ResponseWriter</code>和<code>*http.Request</code>为参数</p>
-</blockquote>
-<ul>
-<li><p><code>(interface) Handler &#123;ServeHTTP(ResponseWriter, *Request)&#125;</code>: 处理器接口，实现了该接口的即为处理器</p>
-</li>
-<li><p><code>(func) http.Handle(pattern string, handler Handler)</code>: 将Handler和DefaultServeMux (或<code>自定义的ServeMux</code>) 绑定，使其处理<code>pattern</code>上的请求。实质是<code>ServeMux</code>的方法，方便调用故在http包中创建。<strong>实质:</strong></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// http.Handle</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Handle</span><span class="params">(pattern <span class="type">string</span>, handler Handleer)</span></span> &#123;</span><br><span class="line">    DefaultServeMux.Handle(pattern, handler)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在server.go源码中</span></span><br></pre></td></tr></table></figure>
-
-
-</li>
-<li><p><code>(func) http.HandleFunc(pattern string, handler func(ResponseWriter, *Request))</code>: 将处理器函数与<code>ServeMux</code>绑定并监听<code>pattern</code>路径。实质会被转换为一个<code>Handler</code>:</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// http.HandleFunc</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">HandleFunc</span><span class="params">(pattern <span class="type">string</span>, handler <span class="keyword">func</span>(ResponseWriter, *Request)</span></span>) &#123;</span><br><span class="line">    DefaultServeMux.HandleFunc(pattern, handler)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ServeMux.HandleFunc</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(mux *ServeMux)</span></span> HandleFunc(pattern <span class="type">string</span>, handler <span class="function"><span class="keyword">func</span><span class="params">(ResponseWriter, *Request)</span></span>) &#123;</span><br><span class="line">    mux.Handle(pattern, HandlerFunc(handler))</span><br><span class="line">&#125; <span class="comment">// 通过显式类型转换将底层类型相同的handler转换为HandlerFunc类型</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// HandlerFunc是个函数类型</span></span><br><span class="line"><span class="keyword">type</span> HandlerFunc <span class="function"><span class="keyword">func</span><span class="params">(ResponseWriter, *Request)</span></span></span><br><span class="line"><span class="comment">/*并且它实现了Handler接口，也就是说，</span></span><br><span class="line"><span class="comment">HandlerFunc类型是个处理器(Handler),</span></span><br><span class="line"><span class="comment">故调用HandleFunc方法实质是调用Handle方法，</span></span><br><span class="line"><span class="comment">且将一个普通函数类型的参数转换成了一个处理器</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(f HandlerFunc)</span></span> ServeHTTP(w ResponseWriter, r *Request) &#123;</span><br><span class="line">  f(w, r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-]]></content>
-      <tags>
-        <tag>Go</tag>
       </tags>
   </entry>
   <entry>
@@ -250,6 +122,134 @@
 ]]></content>
       <tags>
         <tag>注解Aopbot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python中的装饰器</title>
+    <url>/2022/05/05/Decorator-In-Python/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>Python中的一切皆对象。同样函数也是如此。</p>
+<p>装饰器（形如@staticmethod, @overload等）其实是一个<code>装饰器函数或一个装饰器类</code>对<code>装饰器装饰的函数</code>的<code>对象</code>的调用再赋值的过程, 表面上体现为以函数对象作为参数。</p>
+<h3 id="实质"><a href="#实质" class="headerlink" title="? 实质"></a>? 实质</h3><blockquote>
+<p>@decorator</p>
+<p>function_name()</p>
+<p>等价于：</p>
+<p>function_name &#x3D; decorator(function_name)</p>
+<p>（其中，有这么一个装饰器函数：</p>
+<p>def decorator(f):</p>
+<p>​		@wraps(f)</p>
+<p>​		def xxx(xx, xx…):</p>
+<p>​				… # 调用前</p>
+<p>​				return f()  # 或者直接f()来调用函数</p>
+<p>​				…  # 调用后</p>
+<p>​		return xxx</p>
+</blockquote>
+<h2 id="普通装饰器"><a href="#普通装饰器" class="headerlink" title="? 普通装饰器"></a>? 普通装饰器</h2><p>(直接拿菜鸟教程的例子)</p>
+<ul>
+<li>示例一：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">a_new_decorator</span>(<span class="params">a_func</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrap_the_function</span>():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;I am doing some boring work before executing a_func()&quot;</span>)</span><br><span class="line">        a_func()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;I am doing some boring work after executing a_func()&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> warp_the_function</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">a_function_requiring_decoration</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;I am the function which needs some decoration to remove my foul smell&quot;</span>)</span><br><span class="line">   </span><br><span class="line">a_function_requiring_decoration()</span><br><span class="line"><span class="comment"># outputs: &quot;I am the function which needs some decoration to remove my foul smell&quot;</span></span><br><span class="line">a_function_requiring_decoration = a_new_decorator(a_function_requiring_decoration)</span><br><span class="line"><span class="comment">#now a_function_requiring_decoration is wrapped by wrap_the_function()</span></span><br><span class="line"></span><br><span class="line">a_function_requiring_decration()</span><br><span class="line"><span class="comment">#outputs:I am doing some boring work before executing a_func()</span></span><br><span class="line"><span class="comment">#        I am the function which needs some decoration to remove my foul smell</span></span><br><span class="line"><span class="comment">#        I am doing some boring work after executing a_func()</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p>用装饰器写</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">@a_new_decorator</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">a_function_requring_decoration</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;I am a function which needs some decoration to&quot;</span></span><br><span class="line">          <span class="string">&quot;remove my foul smell&quot;</span>)</span><br><span class="line">    </span><br><span class="line">a_function_requiring_decoration()</span><br><span class="line"><span class="comment"># outputs: I am doing some boring work before executing a_func()</span></span><br><span class="line"><span class="comment">#         I am the function which needs some decoration to remove my foul smell</span></span><br><span class="line"><span class="comment">#         I am doing some boring work after executing a_func()</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">#the @a_new_decorator is just a short way of saying:</span></span><br><span class="line">a_function_requiring_decoration = a_new_decorator(a_function_requiring_decoration)</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p>特殊点：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="built_in">print</span>(a_function_requiring_decoration.__name__)</span><br><span class="line"><span class="comment"># Output: wrap_the_function</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>并没有输出”a_function_requiring_decoration”。而被”wrap_the_function”替代了。</p>
+</blockquote>
+<ul>
+<li><p>解决方案</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">a_new_decorator</span>(<span class="params">a_func</span>):</span><br><span class="line"><span class="meta">    @wrap(<span class="params">a_func</span>)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrap_the_function</span>():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;I am doing some boring work before execting a_func&quot;</span>)</span><br><span class="line">        a_func()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;I am doing some boring work after exexting a_func()&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> wrap_the_function</span><br><span class="line"><span class="meta">@a_new_decorator</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">a_function_requring_decoration</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;I am the function which needs some decoration to &quot;</span></span><br><span class="line">          <span class="string">&quot;remove my foul smell&quot;</span>)</span><br><span class="line"> </span><br><span class="line"><span class="built_in">print</span>(a_function_requiring_decoration.__name__)</span><br><span class="line"><span class="comment"># Output: a_function_requiring_decoration</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="？带参数的装饰器"><a href="#？带参数的装饰器" class="headerlink" title="？带参数的装饰器"></a>？带参数的装饰器</h2><ul>
+<li>思路： 创建一个包裹函数。在装饰器函数外面包一层。<ul>
+<li>例：</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">logit</span>(<span class="params">logfile=<span class="string">&quot;out.log&quot;</span></span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">logging_decrator</span>(<span class="params">func</span>):</span><br><span class="line"><span class="meta">        @wraps(<span class="params">func</span>)</span></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">wrapped_function</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">            log_string = func.__name__ + <span class="string">&quot;was called&quot;</span></span><br><span class="line">            <span class="built_in">print</span>(log_string)</span><br><span class="line">            <span class="comment"># 打开lgofile，并写入内容</span></span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(logfile, <span class="string">&quot;a&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(log_string + <span class="string">&quot;\n&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kargs)</span><br><span class="line">        <span class="keyword">return</span> wrapped_function</span><br><span class="line">    <span class="keyword">return</span> logging_decorator</span><br><span class="line"></span><br><span class="line"><span class="meta">@logit()</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">myfunc1</span>():</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"> </span><br><span class="line">myfunc1()</span><br><span class="line"><span class="comment"># Output: myfunc1 was called</span></span><br><span class="line"><span class="comment"># 现在一个叫做 out.log 的文件出现了，里面的内容就是上面的字符串</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">@logit(<span class="params">logfile=<span class="string">&#x27;func2.log&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">myfunc2</span>():</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"> </span><br><span class="line">myfunc2()</span><br><span class="line"><span class="comment"># Output: myfunc2 was called</span></span><br><span class="line"><span class="comment"># 现在一个叫做 func2.log 的文件出现了，里面的内容就是上面的字符串</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="？应用场景"><a href="#？应用场景" class="headerlink" title="？应用场景"></a>？应用场景</h2><blockquote>
+<p>授权</p>
+</blockquote>
+<blockquote>
+<p>日志</p>
+</blockquote>
+<h2 id="？装饰器类"><a href="#？装饰器类" class="headerlink" title="？装饰器类"></a>？装饰器类</h2><ul>
+<li>当你想利用装饰器执行不止一个操作时，可以用来类来包装。</li>
+</ul>
+<p>例：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Logit</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, logfile=<span class="string">&#x27;out.log&#x27;</span></span>):</span><br><span class="line">        self.logfile = logfile</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__call__</span>(<span class="params">self, func</span>):</span><br><span class="line"><span class="meta">        @wraps(<span class="params">func</span>)</span></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">wrapped_function</span>(<span class="params">*args, **kargs</span>):</span><br><span class="line">            log_string = func.__name__ + <span class="string">&quot;was called&quot;</span></span><br><span class="line">            <span class="built_in">print</span>(log_string)</span><br><span class="line">            <span class="comment"># 打开logfile并写入</span></span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(self.logfile, <span class="string">&#x27;a&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(log_string + <span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">            <span class="comment"># 现在，发送一个通知</span></span><br><span class="line">            self.notify()</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kargs)</span><br><span class="line">        <span class="keyword">return</span> wrapped_function</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">notify</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 该类为logit类，什么也不做，交个子类</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EmailLogit</span>(<span class="title class_ inherited__">Logit</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Logit子类,实现日志记录的同时发邮件</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, email=<span class="string">&quot;admin@myproject.com&quot;</span>, *args, **kargs</span>):</span><br><span class="line">        self.email = email</span><br><span class="line">        <span class="built_in">super</span>(EmailLogit, self).__init__(*args, **kargs)</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">notify</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 具体实现</span></span><br><span class="line">        ...</span><br><span class="line">       </span><br><span class="line"><span class="comment"># 调用时与装饰器函数类似。使用@Logit</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>Python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Go-Web</title>
+    <url>/2022/07/05/Go-Web/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>最近看了下<code>Go Web编程</code>这本书，再去看了下源码，想对<code>net/http</code>包中的一些关键的函数，接口的定义和关系做一个记录</p>
+<h3 id="多路复用器"><a href="#多路复用器" class="headerlink" title="? 多路复用器"></a>? 多路复用器</h3><blockquote>
+<p>Go中web应用需要对客户端的请求响应，为了将不同请求URL转发到不同的处理器(Handler)进行处理需要用到多路复用器(ServeMux)</p>
+</blockquote>
+<ul>
+<li><p><code>(var) DefaultServeMux</code>: <code>ListenAndServe(string, Handler) error</code> 中第二个参数的默认值，实质是一个指向<code>ServeMux</code>类型的指针，是<code>ServeMux</code>的一个实例，但<code>ServeMux</code>同时又实现了Handler接口(故可以充当第二个参数的默认值)</p>
+<p><strong>源码:</strong></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// DefaultServeMux is the default ServeMux used by Serve.</span></span><br><span class="line"><span class="keyword">var</span> DefaultServeMux = &amp;defaultServeMux</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> defaultServeMux ServeMux</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p><code>(func) NewServeMux()</code>: 返回一个<code>ServeMux</code></p>
+</li>
+<li><p><code>(struct) ServeMux</code>: 多路复用器结构，负责URL的路径和处理的映射，以及通过<code>自身的ServeHTTP</code>方法调用URL映射对应的<code>处理器的ServeHTTP方法</code></p>
+<p><strong>源码:</strong></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> ServeMux <span class="keyword">struct</span> &#123;</span><br><span class="line">	mu    sync.RWMutex</span><br><span class="line">	m     <span class="keyword">map</span>[<span class="type">string</span>]muxEntry</span><br><span class="line">	es    []muxEntry <span class="comment">// slice of entries sorted from longest to shortest.</span></span><br><span class="line">	hosts <span class="type">bool</span>       <span class="comment">// whether any patterns contain hostnames</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="服务器"><a href="#服务器" class="headerlink" title="?  服务器"></a>?  服务器</h3><blockquote>
+<p>负责启动监听和配置服务</p>
+<p>如果简单配置可以直接调<code>http.ListenAndServe</code>函数来进行监听，复杂配置则需要构建一个Server结构体来调用其ListenAndServe方法</p>
+</blockquote>
+<ul>
+<li><p><code>(struct) Server</code>: 用于细化配置的结构体</p>
+<p><strong>源码:</strong></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Server <span class="keyword">struct</span> &#123;</span><br><span class="line">    Addr <span class="type">string</span></span><br><span class="line">    Handler Handler</span><br><span class="line">    </span><br><span class="line">    TLSConfig *tls.Config</span><br><span class="line">    </span><br><span class="line">    ReadTimeout time.Duration</span><br><span class="line">    ReadHeaderTimeout time.Duration</span><br><span class="line">    WriteTimeout time.Duration</span><br><span class="line">    IdleTimeout time.Duration</span><br><span class="line">    </span><br><span class="line">    MaxHeaderBytes <span class="type">int</span></span><br><span class="line">    </span><br><span class="line">    TLSNextProto <span class="keyword">map</span>[<span class="type">string</span>]<span class="function"><span class="keyword">func</span><span class="params">(*Server, *tls.Conn, Handler)</span></span></span><br><span class="line">    </span><br><span class="line">    ConnState <span class="function"><span class="keyword">func</span><span class="params">(net.Conn, ConnState)</span></span></span><br><span class="line">    </span><br><span class="line">    ErrorLog *log.Logger</span><br><span class="line">    </span><br><span class="line">    BaseContext <span class="function"><span class="keyword">func</span><span class="params">(net.Listener)</span></span> context.Context</span><br><span class="line">    ConnContext <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, c net.Conn)</span></span> context.Context</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>(func) ListenAndServe(addr string, handler Handler) error</code>: 开启监听和进行处理，是整个web应用的启动器</p>
+</li>
+<li><p><code>(func) ListenAndServeTLS(addr, certFile, keyFile string, handler Handler) error</code>: ListenAndServe的https版本</p>
+</li>
+</ul>
+<h3 id="处理器和处理器函数"><a href="#处理器和处理器函数" class="headerlink" title="?  处理器和处理器函数"></a>?  处理器和处理器函数</h3><blockquote>
+<p>Go web中实际处理请求的函数或类型</p>
+<p>处理器：实现了Handler接口的任意类型，可以是结构体，函数类型等</p>
+<p>处理器函数：普通的函数，但是必须要以 <code>http.ResponseWriter</code>和<code>*http.Request</code>为参数</p>
+</blockquote>
+<ul>
+<li><p><code>(interface) Handler &#123;ServeHTTP(ResponseWriter, *Request)&#125;</code>: 处理器接口，实现了该接口的即为处理器</p>
+</li>
+<li><p><code>(func) http.Handle(pattern string, handler Handler)</code>: 将Handler和DefaultServeMux (或<code>自定义的ServeMux</code>) 绑定，使其处理<code>pattern</code>上的请求。实质是<code>ServeMux</code>的方法，方便调用故在http包中创建。<strong>实质:</strong></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// http.Handle</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Handle</span><span class="params">(pattern <span class="type">string</span>, handler Handleer)</span></span> &#123;</span><br><span class="line">    DefaultServeMux.Handle(pattern, handler)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在server.go源码中</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p><code>(func) http.HandleFunc(pattern string, handler func(ResponseWriter, *Request))</code>: 将处理器函数与<code>ServeMux</code>绑定并监听<code>pattern</code>路径。实质会被转换为一个<code>Handler</code>:</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// http.HandleFunc</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">HandleFunc</span><span class="params">(pattern <span class="type">string</span>, handler <span class="keyword">func</span>(ResponseWriter, *Request)</span></span>) &#123;</span><br><span class="line">    DefaultServeMux.HandleFunc(pattern, handler)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ServeMux.HandleFunc</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(mux *ServeMux)</span></span> HandleFunc(pattern <span class="type">string</span>, handler <span class="function"><span class="keyword">func</span><span class="params">(ResponseWriter, *Request)</span></span>) &#123;</span><br><span class="line">    mux.Handle(pattern, HandlerFunc(handler))</span><br><span class="line">&#125; <span class="comment">// 通过显式类型转换将底层类型相同的handler转换为HandlerFunc类型</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// HandlerFunc是个函数类型</span></span><br><span class="line"><span class="keyword">type</span> HandlerFunc <span class="function"><span class="keyword">func</span><span class="params">(ResponseWriter, *Request)</span></span></span><br><span class="line"><span class="comment">/*并且它实现了Handler接口，也就是说，</span></span><br><span class="line"><span class="comment">HandlerFunc类型是个处理器(Handler),</span></span><br><span class="line"><span class="comment">故调用HandleFunc方法实质是调用Handle方法，</span></span><br><span class="line"><span class="comment">且将一个普通函数类型的参数转换成了一个处理器</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(f HandlerFunc)</span></span> ServeHTTP(w ResponseWriter, r *Request) &#123;</span><br><span class="line">  f(w, r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Go</tag>
       </tags>
   </entry>
 </search>
