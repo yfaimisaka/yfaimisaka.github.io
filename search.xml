@@ -1,32 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Generator-In-Python</title>
-    <url>/2022/07/06/Generator-In-Python/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p><code>yield</code>是Python极其重要的一个关键字，它与Python中的<code>生成器</code>密切相关，并且它的用法时不时让人困惑…</p>
-<h2 id="yield有什么用"><a href="#yield有什么用" class="headerlink" title="? yield有什么用"></a>? <code>yield</code>有什么用</h2><ul>
-<li><p>大多数情况下，使用<code>yield</code>都是为了将函数作为生成器使用。(<code>yield</code>只能在函数中使用)</p>
-</li>
-<li><p>当有大量数据需要返回时这能够节省内存空间。</p>
-</li>
-</ul>
-<h2 id="生成器"><a href="#生成器" class="headerlink" title="? 生成器"></a>? 生成器</h2><p><strong>正常思路的斐波那契:</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fab</span>(<span class="params"><span class="built_in">max</span></span>):</span><br><span class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    L = [] <span class="comment"># 拿一个列表来存数据，提高复用性</span></span><br><span class="line">    <span class="keyword">while</span> n &lt; <span class="built_in">max</span>:</span><br><span class="line">        L.append(b)</span><br><span class="line">        a, b = b, a + b</span><br><span class="line">        n = n + <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> L</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> fab(<span class="number">5</span>):</span><br><span class="line">    <span class="built_in">print</span>(n)</span><br></pre></td></tr></table></figure>
-
-<p>这么做会使该函数的内存占用随参数<code>max</code>增大而增加。</p>
-<blockquote>
-<p>引言：</p>
-<p>​        生成器：实质是一个拥有<code>__next__()</code>方法和       <code>__iter__()</code>方法的类。拥有一边循环一边计算的机制</p>
-</blockquote>
-<p><strong>生成器类构建的斐波那契:</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Fab</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, <span class="built_in">max</span></span>):</span><br><span class="line">        self.<span class="built_in">max</span> = <span class="built_in">max</span></span><br><span class="line">        self.n, self.a, self.b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__iter__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">next</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> self.n &lt; self.<span class="built_in">max</span>:</span><br><span class="line">            r = self.b</span><br><span class="line">            self.a, self.b = self.b, self.a + self.b</span><br><span class="line">            self.n = self.n + <span class="number">1</span></span><br><span class="line">            <span class="keyword">return</span> r</span><br><span class="line">        <span class="keyword">raise</span> StopIteration()</span><br><span class="line">        </span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> Fab(<span class="number">5</span>):</span><br><span class="line">    <span class="built_in">print</span>(n)</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>Python</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>python中的装饰器</title>
     <url>/2022/05/05/Decorator-In-Python/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>Python中的一切皆对象。同样函数也是如此。</p>
@@ -93,6 +67,32 @@
 </ul>
 <p>例：</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Logit</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, logfile=<span class="string">&#x27;out.log&#x27;</span></span>):</span><br><span class="line">        self.logfile = logfile</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__call__</span>(<span class="params">self, func</span>):</span><br><span class="line"><span class="meta">        @wraps(<span class="params">func</span>)</span></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">wrapped_function</span>(<span class="params">*args, **kargs</span>):</span><br><span class="line">            log_string = func.__name__ + <span class="string">&quot;was called&quot;</span></span><br><span class="line">            <span class="built_in">print</span>(log_string)</span><br><span class="line">            <span class="comment"># 打开logfile并写入</span></span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(self.logfile, <span class="string">&#x27;a&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(log_string + <span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">            <span class="comment"># 现在，发送一个通知</span></span><br><span class="line">            self.notify()</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kargs)</span><br><span class="line">        <span class="keyword">return</span> wrapped_function</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">notify</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 该类为logit类，什么也不做，交个子类</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EmailLogit</span>(<span class="title class_ inherited__">Logit</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Logit子类,实现日志记录的同时发邮件</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, email=<span class="string">&quot;admin@myproject.com&quot;</span>, *args, **kargs</span>):</span><br><span class="line">        self.email = email</span><br><span class="line">        <span class="built_in">super</span>(EmailLogit, self).__init__(*args, **kargs)</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">notify</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 具体实现</span></span><br><span class="line">        ...</span><br><span class="line">       </span><br><span class="line"><span class="comment"># 调用时与装饰器函数类似。使用@Logit</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>Python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Python中的装饰器</title>
+    <url>/2022/07/06/Generator-In-Python/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p><code>yield</code>是Python极其重要的一个关键字，它与Python中的<code>生成器</code>密切相关，并且它的用法时不时让人困惑…</p>
+<h2 id="yield有什么用"><a href="#yield有什么用" class="headerlink" title="? yield有什么用"></a>? <code>yield</code>有什么用</h2><ul>
+<li><p>大多数情况下，使用<code>yield</code>都是为了将函数作为生成器使用。(<code>yield</code>只能在函数中使用)</p>
+</li>
+<li><p>当有大量数据需要返回时这能够节省内存空间。</p>
+</li>
+</ul>
+<h2 id="生成器"><a href="#生成器" class="headerlink" title="? 生成器"></a>? 生成器</h2><p><strong>正常思路的斐波那契:</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fab</span>(<span class="params"><span class="built_in">max</span></span>):</span><br><span class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    L = [] <span class="comment"># 拿一个列表来存数据，提高复用性</span></span><br><span class="line">    <span class="keyword">while</span> n &lt; <span class="built_in">max</span>:</span><br><span class="line">        L.append(b)</span><br><span class="line">        a, b = b, a + b</span><br><span class="line">        n = n + <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> L</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> fab(<span class="number">5</span>):</span><br><span class="line">    <span class="built_in">print</span>(n)</span><br></pre></td></tr></table></figure>
+
+<p>这么做会使该函数的内存占用随参数<code>max</code>增大而增加。</p>
+<blockquote>
+<p>引言：</p>
+<p>​        生成器：实质是一个拥有<code>__next__()</code>方法和       <code>__iter__()</code>方法的类。拥有一边循环一边计算的机制</p>
+</blockquote>
+<p><strong>生成器类构建的斐波那契:</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Fab</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, <span class="built_in">max</span></span>):</span><br><span class="line">        self.<span class="built_in">max</span> = <span class="built_in">max</span></span><br><span class="line">        self.n, self.a, self.b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__iter__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">next</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> self.n &lt; self.<span class="built_in">max</span>:</span><br><span class="line">            r = self.b</span><br><span class="line">            self.a, self.b = self.b, self.a + self.b</span><br><span class="line">            self.n = self.n + <span class="number">1</span></span><br><span class="line">            <span class="keyword">return</span> r</span><br><span class="line">        <span class="keyword">raise</span> StopIteration()</span><br><span class="line">        </span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> Fab(<span class="number">5</span>):</span><br><span class="line">    <span class="built_in">print</span>(n)</span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <tags>
