@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="AIMISAKA">
+    
+    <title>
+        
+            Go中的请求和响应 |
+        
+        AIMISAKA
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/logo.jpg">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"81.69.203.181","root":"/","language":"en","path":"search.xml"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":true},"style":{"primary_color":"#0066CC","avatar":"/images/logo.jpg","favicon":"/images/logo.jpg","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":false,"scale":false},"first_screen":{"enable":true,"background_img":"/images/29.png","description":"ANIMA"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"preload":true},"code_copy":{"enable":true,"style":"mac"},"pjax":{"enable":true},"lazyload":{"enable":true},"version":"3.4.5"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <span class="pjax-progress-icon">
+            <i class="fas fa-circle-notch fa-spin"></i>
+        </span>
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                AIMISAKA
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                HOME
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                ARCHIVES
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/links"
+                            >
+                                LINKS
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">HOME</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">ARCHIVES</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/links">LINKS</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Go中的请求和响应</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/logo.jpg">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">AIMISAKA</span>
+                        
+                            <span class="author-label">TXG</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;
+        <span class="pc">2022-07-23 09:13:28</span>
+        <span class="mobile">2022-07-23 09:13</span>
+    </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/Go/">Go</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fas fa-file-word"></i>&nbsp;<span>1.2k Words</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fas fa-clock"></i>&nbsp;<span>6 Mins</span>
+        </span>
+    
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>记录一下<code>go</code>中的请求和响应处理</p>
+<h2 id="请求"><a href="#请求" class="headerlink" title="? 请求"></a>? 请求</h2><h3 id="Request结构"><a href="#Request结构" class="headerlink" title="? Request结构"></a>? Request结构</h3><ul>
+<li><p><code>Request</code>结构既可以用于客户端也可以用于服务端</p>
+</li>
+<li><p><code>Request</code>结构</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Request <span class="keyword">struct</span> &#123;</span><br><span class="line">    <span class="comment">// Method specifies the HTTP method (GET, POST, PUT, etc.).</span></span><br><span class="line">    Method <span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    URL *url.URL <span class="comment">/*#*/</span></span><br><span class="line">    </span><br><span class="line">    Proto      <span class="type">string</span> <span class="comment">// &quot;HTTP/1.0&quot;</span></span><br><span class="line">    ProtoMajor <span class="type">int</span>    <span class="comment">// 1</span></span><br><span class="line">    ProtoMinor <span class="type">int</span>    <span class="comment">// 0</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Request Header</span></span><br><span class="line">    Header Header <span class="comment">/*#*/</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Request Body</span></span><br><span class="line">    Body io.ReadCloser <span class="comment">/*#*/</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// return a new copy of Body</span></span><br><span class="line">    <span class="comment">// used for client requests</span></span><br><span class="line">    <span class="comment">// For server requests, it is unused</span></span><br><span class="line">    GetBody <span class="function"><span class="keyword">func</span><span class="params">()</span></span> (io.ReadCloser, <span class="type">error</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// value -1 indicates that the length is unknown</span></span><br><span class="line">    <span class="comment">// Values &gt;= 0 indicate that the given number of bytes may</span></span><br><span class="line">	<span class="comment">// be read from Body</span></span><br><span class="line">    ContentLength <span class="type">int64</span></span><br><span class="line">    </span><br><span class="line">    TransferEncoding []<span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Close indicates whether to close the connection after</span></span><br><span class="line">	<span class="comment">// replying to this request (for servers) or after sending this</span></span><br><span class="line">	<span class="comment">// request and reading its response (for clients).</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">// For server requests, the HTTP server handles this automatically</span></span><br><span class="line">	<span class="comment">// and this field is not needed by Handlers.</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">// For client requests, setting this field prevents re-use of</span></span><br><span class="line">	<span class="comment">// TCP connections between requests to the same hosts, as if</span></span><br><span class="line">	<span class="comment">// Transport.DisableKeepAlives were set.</span></span><br><span class="line">    Close <span class="type">bool</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// thisis either the value of the &quot;Host&quot; header </span></span><br><span class="line">    <span class="comment">// or the host namegiven in the URL itself</span></span><br><span class="line">    Host <span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// including both the URL field&#x27;s query parameters</span></span><br><span class="line">    <span class="comment">// and the PATCH, POST, or PUT form data</span></span><br><span class="line">    Form url.Values <span class="comment">/*#*/</span></span><br><span class="line">    <span class="comment">// PostForm contains the parsed form data from PATCH, POST</span></span><br><span class="line">	<span class="comment">// or PUT body parameters</span></span><br><span class="line">    PostForm url.Values <span class="comment">/*#*/</span></span><br><span class="line">    <span class="comment">// MultipartForm is the parsed multipart form, including file uploads</span></span><br><span class="line">    MultipartForm *multipart.Form <span class="comment">/*#*/</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Trailer specifies additional headers </span></span><br><span class="line">    <span class="comment">// that are sent after the request body</span></span><br><span class="line">    Trailer Header</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// RemoteAddr allows HTTP servers and other software to record</span></span><br><span class="line">	<span class="comment">// the network address that sent the request</span></span><br><span class="line">    RemoteAddr <span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    RequestURI <span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    TLS *tls.ConnectionState</span><br><span class="line">    </span><br><span class="line">    Cancel &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Response is the redirect response which caused this request</span></span><br><span class="line">	<span class="comment">// to be created. This field is only populated during client</span></span><br><span class="line">	<span class="comment">// redirects.</span></span><br><span class="line">	Response *Response</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="URL字段"><a href="#URL字段" class="headerlink" title="? URL字段"></a>? URL字段</h4><ul>
+<li><p><code>URL</code>结构体</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> URL <span class="keyword">struct</span> &#123;</span><br><span class="line">    Scheme   <span class="type">string</span></span><br><span class="line">    Opaque   <span class="type">string</span></span><br><span class="line">    User     *Userinfo</span><br><span class="line">    Host     <span class="type">string</span></span><br><span class="line">    Path     <span class="type">string</span></span><br><span class="line">    RawQuery <span class="type">string</span></span><br><span class="line">    Fragment <span class="type">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p><code>URL</code>的一般结构</p>
+<blockquote>
+<p>scheme:&#x2F;&#x2F;[ userinfo@]host&#x2F;path[?query][#fragment]</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="Header字段"><a href="#Header字段" class="headerlink" title="? Header字段"></a>? Header字段</h4><ul>
+<li>一个 首部就是一个映射， 这个映射的键为字符串， 值为字符串切片</li>
+</ul>
+<h5 id="获取和设置或修改Header中字段"><a href="#获取和设置或修改Header中字段" class="headerlink" title="? 获取和设置或修改Header中字段"></a>? 获取和设置或修改Header中字段</h5><ul>
+<li><ol>
+<li><p>通过切片访问<code>Header</code>中的特定字段，返回切片</p>
+<p><code>w.Header[&quot;Accept-Encodeing&quot;]</code></p>
+<p>结果：<code>[gzip, deflate]</code></p>
+</li>
+</ol>
+</li>
+<li><ol start="2">
+<li><p>通过<code>Get</code>和<code>Set</code>方法，<code>Get</code>返回逗号分隔的字符串</p>
+<p><code>w.Header.Get(&quot;Accept-Encodeing&quot;)</code></p>
+<p>结果：<code>gzip, deflate</code></p>
+</li>
+</ol>
+</li>
+</ul>
+<h4 id="Body字段"><a href="#Body字段" class="headerlink" title="? Body字段"></a>? Body字段</h4><ul>
+<li><p><code>Body</code>是一个<code>ReadCloser </code>接口， 该接口既包含了<code>Reader</code>接口，也包含了<code>Closer</code>接口</p>
+</li>
+<li><p>一个例子</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">body</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    <span class="built_in">len</span> := r.ContentLength</span><br><span class="line">    body := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="built_in">len</span>)</span><br><span class="line">    r.Body.Read(body)</span><br><span class="line">    fmt.Fprintln(w, <span class="type">string</span>(body))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    server := http.Server&#123;</span><br><span class="line">        Addr: <span class="string">&quot;127.0.0.1:8080&quot;</span>,</span><br><span class="line">    &#125;</span><br><span class="line">    http.HandleFunc(<span class="string">&quot;/body&quot;</span>, body)</span><br><span class="line">    server.ListenAndServe()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="Go与HTML表单"><a href="#Go与HTML表单" class="headerlink" title="? Go与HTML表单"></a>? Go与HTML表单</h3><h4 id="HTML表单的一般形式"><a href="#HTML表单的一般形式" class="headerlink" title="? HTML表单的一般形式"></a>? HTML表单的一般形式</h4><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;/process&quot;</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;application/x-www-form-urlencoded&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;first_name&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;last_name&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="数据编码方式"><a href="#数据编码方式" class="headerlink" title="? 数据编码方式"></a>? 数据编码方式</h4><ul>
+<li><p><code>application/x-www-form-urlencoded</code></p>
+<p>将HTML中表单中的数据编码为连续的<strong>长查询字符串</strong></p>
+</li>
+<li><p><code>multipart/form-data</code></p>
+<p>将表单中的数据转换为一条<code>MIME报文</code>，表单中的每个键值对都构成了这条报文的一部分</p>
+</li>
+<li><p><code>text/plain</code></p>
+<p>HTML5支持</p>
+</li>
+</ul>
+<blockquote>
+<p>如何选择 ?</p>
+<ul>
+<li><code>application/x-www-form-urlencoded</code> （简单文本数据</li>
+<li><code>multipart/form-data</code> （传输大量数据，如上传文件</li>
+<li><code>text/plain</code> （&#96;&#96;Base64&#96;编码，文本方式传输二进制数据</li>
+</ul>
+</blockquote>
+<h3 id="表单的解析"><a href="#表单的解析" class="headerlink" title="? 表单的解析"></a>? 表单的解析</h3><h4 id="手动解析"><a href="#手动解析" class="headerlink" title="? 手动解析"></a>? 手动解析</h4><blockquote>
+<p>对<code>application/x-www-form-urlencoded</code>编码</p>
+</blockquote>
+<ul>
+<li><ol>
+<li>先调用<code>w.ParseForm()</code>方法</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>通过<code>w.Form</code>字段访问表单数据和URL参数</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>或者通过<code>w.PostForm</code>字段实现只访问表单数据</li>
+</ol>
+</li>
+</ul>
+<blockquote>
+<p>对<code>multipart/form-data</code>编码</p>
+</blockquote>
+<ul>
+<li><ol>
+<li>先调用<code>w.ParseMultipartForm()</code>方法</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>通过<code>w.MultipartForm</code>字段访问表单数据或获取上传的文件</li>
+</ol>
+</li>
+</ul>
+<h4 id="自动解析"><a href="#自动解析" class="headerlink" title="? 自动解析"></a>? 自动解析</h4><ul>
+<li><code>FormValue(key string)</code></li>
+<li><code>PostFormValue(key string)</code></li>
+</ul>
+<p>这两个方法会自动调用<code>ParseForm()和ParseMultipartForm()</code>方法进行解析</p>
+<blockquote>
+<p>注：如果对应该键的值不止一个，方法只返回第一个值</p>
+</blockquote>
+<h3 id="文件上传和接收"><a href="#文件上传和接收" class="headerlink" title="? 文件上传和接收"></a>? 文件上传和接收</h3><p><strong>举个例子</strong></p>
+<ul>
+<li><p>HTML表单</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span> 　</span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span> 　 　</span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;Content-Type&quot;</span> <span class="attr">content</span>=<span class="string">&quot; text/html; charset=utf-8&quot;</span> /&gt;</span> 　 　</span><br><span class="line">    &lt; title&gt;Go Web Programming&lt; /title&gt; </span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span> 　</span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span> 　 </span><br><span class="line">    <span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;http://localhost:8080/process?hello=world&amp;thread=123&quot;</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span> 　 　</span><br><span class="line">       <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;hello&quot;</span> <span class="attr">value</span>=<span class="string">&quot;sau sheong&quot;</span>/&gt;</span> 　 　 </span><br><span class="line">       &lt; input type=&quot;text&quot; name=&quot;post&quot; value=&quot;456&quot;/&gt; 　 　 　</span><br><span class="line">       &lt; input type=&quot;file&quot; name=&quot;uploaded&quot;&gt;　 　 　     <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span>&gt;</span> 　 　</span><br><span class="line">     <span class="tag">&lt;/<span class="name">form</span>&gt;</span> 　</span><br><span class="line">   <span class="tag">&lt;/<span class="name">body</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>Go处理</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span>(</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;io/util&quot;</span></span><br><span class="line">    <span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">process</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    r.ParseMultipartForm(<span class="number">1024</span>)</span><br><span class="line">    fileHeader := r.MultipartForm.File(<span class="string">&quot;uploaded&quot;</span>)[<span class="number">0</span>]</span><br><span class="line">    file, err := fileHeader.Open()</span><br><span class="line">    <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">        data, err := ioutil.ReadAll(file)</span><br><span class="line">        <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">            fmt.Fprintln(w, <span class="type">string</span>(data))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    server := http.Server&#123;</span><br><span class="line">        Addr: <span class="string">&quot;127.0.0.1&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    http.HandleFunc(<span class="string">&quot;/process&quot;</span>, process)</span><br><span class="line">    server.ListenAndServe()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>或者用<code>FormFile()</code>方法</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">process</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    file, _, err := r.FormFile(<span class="string">&quot;uploaded&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">        data, err := ioutil.ReadAll(file)</span><br><span class="line">        <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">            fmt.Fprintln(w, <span class="type">string</span>(data))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当文件只有一个时这特别有用</p>
+
+        </div>
+
+        
+
+        
+            <ul class="post-tags-box">
+                
+                    <li class="tag-item">
+                        <a href="/tags/Go/">#Go</a>&nbsp;
+                    </li>
+                
+            </ul>
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2022/07/06/Generator-In-Python/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Python中的生成器</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+            <div class="comment-container">
+                <div class="comments-container">
+    <div id="comment-anchor"></div>
+    <div class="comment-area-title">
+        <i class="fas fa-comments">&nbsp;Comments</i>
+    </div>
+    
+
+        
+            
+    <div id="gitalk-container"></div>
+    <script data-pjax
+            src="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+    <script data-pjax>
+
+        function loadGitalk() {
+            let __gitalk__pathname = decodeURI(location.pathname);
+            const __gitalk__pathnameLength = __gitalk__pathname.length;
+            const __gitalk__pathnameMaxLength = 50;
+            if (__gitalk__pathnameLength > __gitalk__pathnameMaxLength) {
+                __gitalk__pathname = __gitalk__pathname.substring(0, __gitalk__pathnameMaxLength - 3) + '...';
+            }
+
+            try {
+                Gitalk && new Gitalk({
+                    clientID: 'd54e77c4efacb9e63626',
+                    clientSecret: 'c4ed7afa6e565e9d8aa35ae350eda08cb86afca4',
+                    repo: 'comment',
+                    owner: 'yfaimisaka',
+                    admin: ['yfaimisaka'],
+                    id: __gitalk__pathname,
+                    language: 'en'
+                }).render('gitalk-container');
+
+            } catch (e) {
+                window.Gitalk = null;
+            }
+        }
+
+        if ('true') {
+            const loadGitalkTimeout = setTimeout(() => {
+                loadGitalk();
+                clearTimeout(loadGitalkTimeout);
+            }, 1000);
+        } else {
+            window.addEventListener('DOMContentLoaded', loadGitalk);
+        }
+    </script>
+
+
+
+        
+    
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">AIMISAKA</a>
+        </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.5</a>
+        </div>
+        
+            <div class="icp-info info-item"><a target="_blank" rel="nofollow" href="https://beian.miit.gov.cn">赣ICP备2021011694号-1</a></div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+            <li class="go-comment">
+                <i class="fas fa-comment"></i>
+            </li>
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-text">? 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82"><span class="nav-text">? 请求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Request%E7%BB%93%E6%9E%84"><span class="nav-text">? Request结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#URL%E5%AD%97%E6%AE%B5"><span class="nav-text">? URL字段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Header%E5%AD%97%E6%AE%B5"><span class="nav-text">? Header字段</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E5%92%8C%E8%AE%BE%E7%BD%AE%E6%88%96%E4%BF%AE%E6%94%B9Header%E4%B8%AD%E5%AD%97%E6%AE%B5"><span class="nav-text">? 获取和设置或修改Header中字段</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Body%E5%AD%97%E6%AE%B5"><span class="nav-text">? Body字段</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Go%E4%B8%8EHTML%E8%A1%A8%E5%8D%95"><span class="nav-text">? Go与HTML表单</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#HTML%E8%A1%A8%E5%8D%95%E7%9A%84%E4%B8%80%E8%88%AC%E5%BD%A2%E5%BC%8F"><span class="nav-text">? HTML表单的一般形式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BC%96%E7%A0%81%E6%96%B9%E5%BC%8F"><span class="nav-text">? 数据编码方式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A8%E5%8D%95%E7%9A%84%E8%A7%A3%E6%9E%90"><span class="nav-text">? 表单的解析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%8B%E5%8A%A8%E8%A7%A3%E6%9E%90"><span class="nav-text">? 手动解析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E8%A7%A3%E6%9E%90"><span class="nav-text">? 自动解析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E5%92%8C%E6%8E%A5%E6%94%B6"><span class="nav-text">? 文件上传和接收</span></a></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/utils.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/main.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/header-shrink.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/back2top.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/dark-light-toggle.js"></script>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/local-search.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/code-copy.js"></script>
+
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/lazyload.js"></script>
+
+
+<div class="post-scripts pjax">
+    
+        <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/left-side-toggle.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/libs/anime.min.js"></script><script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/toc.js"></script>
+    
+</div>
+
+
+    <script src="//cdn.jsdelivr.net/npm/hexo-theme-keep@3.4.5/source/js/libs/pjax.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+            // scrollTo: true,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart();
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd();
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'));
+            KEEP.refresh();
+        });
+    });
+</script>
+
+
+
+</body>
+</html>
