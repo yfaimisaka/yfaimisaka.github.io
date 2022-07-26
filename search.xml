@@ -74,6 +74,131 @@
       </tags>
   </entry>
   <entry>
+    <title>Go中的请求和响应</title>
+    <url>/2022/07/23/Go-Request-Response/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>记录一下<code>go</code>中的请求和响应处理</p>
+<h2 id="请求"><a href="#请求" class="headerlink" title="? 请求"></a>? 请求</h2><h3 id="Request结构"><a href="#Request结构" class="headerlink" title="? Request结构"></a>? Request结构</h3><ul>
+<li><p><code>Request</code>结构既可以用于客户端也可以用于服务端</p>
+</li>
+<li><p><code>Request</code>结构</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Request <span class="keyword">struct</span> &#123;</span><br><span class="line">    <span class="comment">// Method specifies the HTTP method (GET, POST, PUT, etc.).</span></span><br><span class="line">    Method <span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    URL *url.URL <span class="comment">/*#*/</span></span><br><span class="line">    </span><br><span class="line">    Proto      <span class="type">string</span> <span class="comment">// &quot;HTTP/1.0&quot;</span></span><br><span class="line">    ProtoMajor <span class="type">int</span>    <span class="comment">// 1</span></span><br><span class="line">    ProtoMinor <span class="type">int</span>    <span class="comment">// 0</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Request Header</span></span><br><span class="line">    Header Header <span class="comment">/*#*/</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Request Body</span></span><br><span class="line">    Body io.ReadCloser <span class="comment">/*#*/</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// return a new copy of Body</span></span><br><span class="line">    <span class="comment">// used for client requests</span></span><br><span class="line">    <span class="comment">// For server requests, it is unused</span></span><br><span class="line">    GetBody <span class="function"><span class="keyword">func</span><span class="params">()</span></span> (io.ReadCloser, <span class="type">error</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// value -1 indicates that the length is unknown</span></span><br><span class="line">    <span class="comment">// Values &gt;= 0 indicate that the given number of bytes may</span></span><br><span class="line">	<span class="comment">// be read from Body</span></span><br><span class="line">    ContentLength <span class="type">int64</span></span><br><span class="line">    </span><br><span class="line">    TransferEncoding []<span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Close indicates whether to close the connection after</span></span><br><span class="line">	<span class="comment">// replying to this request (for servers) or after sending this</span></span><br><span class="line">	<span class="comment">// request and reading its response (for clients).</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">// For server requests, the HTTP server handles this automatically</span></span><br><span class="line">	<span class="comment">// and this field is not needed by Handlers.</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">// For client requests, setting this field prevents re-use of</span></span><br><span class="line">	<span class="comment">// TCP connections between requests to the same hosts, as if</span></span><br><span class="line">	<span class="comment">// Transport.DisableKeepAlives were set.</span></span><br><span class="line">    Close <span class="type">bool</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// thisis either the value of the &quot;Host&quot; header </span></span><br><span class="line">    <span class="comment">// or the host namegiven in the URL itself</span></span><br><span class="line">    Host <span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// including both the URL field&#x27;s query parameters</span></span><br><span class="line">    <span class="comment">// and the PATCH, POST, or PUT form data</span></span><br><span class="line">    Form url.Values <span class="comment">/*#*/</span></span><br><span class="line">    <span class="comment">// PostForm contains the parsed form data from PATCH, POST</span></span><br><span class="line">	<span class="comment">// or PUT body parameters</span></span><br><span class="line">    PostForm url.Values <span class="comment">/*#*/</span></span><br><span class="line">    <span class="comment">// MultipartForm is the parsed multipart form, including file uploads</span></span><br><span class="line">    MultipartForm *multipart.Form <span class="comment">/*#*/</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Trailer specifies additional headers </span></span><br><span class="line">    <span class="comment">// that are sent after the request body</span></span><br><span class="line">    Trailer Header</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// RemoteAddr allows HTTP servers and other software to record</span></span><br><span class="line">	<span class="comment">// the network address that sent the request</span></span><br><span class="line">    RemoteAddr <span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    RequestURI <span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    TLS *tls.ConnectionState</span><br><span class="line">    </span><br><span class="line">    Cancel &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Response is the redirect response which caused this request</span></span><br><span class="line">	<span class="comment">// to be created. This field is only populated during client</span></span><br><span class="line">	<span class="comment">// redirects.</span></span><br><span class="line">	Response *Response</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="URL字段"><a href="#URL字段" class="headerlink" title="? URL字段"></a>? URL字段</h4><ul>
+<li><p><code>URL</code>结构体</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> URL <span class="keyword">struct</span> &#123;</span><br><span class="line">    Scheme   <span class="type">string</span></span><br><span class="line">    Opaque   <span class="type">string</span></span><br><span class="line">    User     *Userinfo</span><br><span class="line">    Host     <span class="type">string</span></span><br><span class="line">    Path     <span class="type">string</span></span><br><span class="line">    RawQuery <span class="type">string</span></span><br><span class="line">    Fragment <span class="type">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p><code>URL</code>的一般结构</p>
+<blockquote>
+<p>scheme:&#x2F;&#x2F;[ userinfo@]host&#x2F;path[?query][#fragment]</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="Header字段"><a href="#Header字段" class="headerlink" title="? Header字段"></a>? Header字段</h4><ul>
+<li>一个 首部就是一个映射， 这个映射的键为字符串， 值为字符串切片</li>
+</ul>
+<h5 id="获取和设置或修改Header中字段"><a href="#获取和设置或修改Header中字段" class="headerlink" title="? 获取和设置或修改Header中字段"></a>? 获取和设置或修改Header中字段</h5><ul>
+<li><ol>
+<li><p>通过切片访问<code>Header</code>中的特定字段，返回切片</p>
+<p><code>w.Header[&quot;Accept-Encodeing&quot;]</code></p>
+<p>结果：<code>[gzip, deflate]</code></p>
+</li>
+</ol>
+</li>
+<li><ol start="2">
+<li><p>通过<code>Get</code>和<code>Set</code>方法，<code>Get</code>返回逗号分隔的字符串</p>
+<p><code>w.Header.Get(&quot;Accept-Encodeing&quot;)</code></p>
+<p>结果：<code>gzip, deflate</code></p>
+</li>
+</ol>
+</li>
+</ul>
+<h4 id="Body字段"><a href="#Body字段" class="headerlink" title="? Body字段"></a>? Body字段</h4><ul>
+<li><p><code>Body</code>是一个<code>ReadCloser </code>接口， 该接口既包含了<code>Reader</code>接口，也包含了<code>Closer</code>接口</p>
+</li>
+<li><p>一个例子</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">body</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    <span class="built_in">len</span> := r.ContentLength</span><br><span class="line">    body := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="built_in">len</span>)</span><br><span class="line">    r.Body.Read(body)</span><br><span class="line">    fmt.Fprintln(w, <span class="type">string</span>(body))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    server := http.Server&#123;</span><br><span class="line">        Addr: <span class="string">&quot;127.0.0.1:8080&quot;</span>,</span><br><span class="line">    &#125;</span><br><span class="line">    http.HandleFunc(<span class="string">&quot;/body&quot;</span>, body)</span><br><span class="line">    server.ListenAndServe()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="Go与HTML表单"><a href="#Go与HTML表单" class="headerlink" title="? Go与HTML表单"></a>? Go与HTML表单</h3><h4 id="HTML表单的一般形式"><a href="#HTML表单的一般形式" class="headerlink" title="? HTML表单的一般形式"></a>? HTML表单的一般形式</h4><figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;/process&quot;</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;application/x-www-form-urlencoded&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;first_name&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;last_name&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="数据编码方式"><a href="#数据编码方式" class="headerlink" title="? 数据编码方式"></a>? 数据编码方式</h4><ul>
+<li><p><code>application/x-www-form-urlencoded</code></p>
+<p>将HTML中表单中的数据编码为连续的<strong>长查询字符串</strong></p>
+</li>
+<li><p><code>multipart/form-data</code></p>
+<p>将表单中的数据转换为一条<code>MIME报文</code>，表单中的每个键值对都构成了这条报文的一部分</p>
+</li>
+<li><p><code>text/plain</code></p>
+<p>HTML5支持</p>
+</li>
+</ul>
+<blockquote>
+<p>如何选择 ?</p>
+<ul>
+<li><code>application/x-www-form-urlencoded</code> （简单文本数据</li>
+<li><code>multipart/form-data</code> （传输大量数据，如上传文件</li>
+<li><code>text/plain</code> （&#96;&#96;Base64&#96;编码，文本方式传输二进制数据</li>
+</ul>
+</blockquote>
+<h3 id="表单的解析"><a href="#表单的解析" class="headerlink" title="? 表单的解析"></a>? 表单的解析</h3><h4 id="手动解析"><a href="#手动解析" class="headerlink" title="? 手动解析"></a>? 手动解析</h4><blockquote>
+<p><code>application/x-www-form-urlencoded</code>编码</p>
+</blockquote>
+<ul>
+<li><ol>
+<li>先调用<code>w.ParseForm()</code>方法</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>通过<code>w.Form</code>字段访问表单数据和URL参数</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>或者通过<code>w.PostForm</code>字段实现只访问表单数据</li>
+</ol>
+</li>
+</ul>
+<blockquote>
+<p><code>multipart/form-data</code>编码</p>
+</blockquote>
+<ul>
+<li><ol>
+<li>先调用<code>w.ParseMultipartForm()</code>方法</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>通过<code>w.MultipartForm</code>字段访问表单数据或获取上传的文件</li>
+</ol>
+</li>
+</ul>
+<h4 id="自动解析"><a href="#自动解析" class="headerlink" title="? 自动解析"></a>? 自动解析</h4><ul>
+<li><code>FormValue(key string)</code></li>
+<li><code>PostFormValue(key string)</code></li>
+</ul>
+<p>这两个方法会自动调用<code>ParseForm()和ParseMultipartForm()</code>方法进行解析</p>
+<blockquote>
+<p>注：如果对应该键的值不止一个，方法只返回第一个值</p>
+</blockquote>
+<h3 id="文件上传和接收"><a href="#文件上传和接收" class="headerlink" title="? 文件上传和接收"></a>? 文件上传和接收</h3><p><strong>举个例子</strong></p>
+<ul>
+<li><p>HTML表单</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span> 　</span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span> 　 　</span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;Content-Type&quot;</span> <span class="attr">content</span>=<span class="string">&quot; text/html; charset=utf-8&quot;</span>/&gt;</span> 　 　</span><br><span class="line">    &lt; title&gt;Go Web Programming<span class="tag">&lt;/<span class="name">title</span>&gt;</span> </span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span> 　</span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span> 　 </span><br><span class="line">    <span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;http://localhost:8080/process?hello=world&amp;thread=123&quot;</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span> 　 　</span><br><span class="line">       <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;hello&quot;</span> <span class="attr">value</span>=<span class="string">&quot;sau sheong&quot;</span>/&gt;</span> 　 　 </span><br><span class="line">       <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;post&quot;</span> <span class="attr">value</span>=<span class="string">&quot;456&quot;</span>/&gt;</span> 　 　 　</span><br><span class="line">       <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> <span class="attr">name</span>=<span class="string">&quot;uploaded&quot;</span>/&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span>/&gt;</span> </span><br><span class="line">     <span class="tag">&lt;/<span class="name">form</span>&gt;</span> 　</span><br><span class="line">   <span class="tag">&lt;/<span class="name">body</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>Go处理</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span>(</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;io/util&quot;</span></span><br><span class="line">    <span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">process</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    r.ParseMultipartForm(<span class="number">1024</span>)</span><br><span class="line">    fileHeader := r.MultipartForm.File(<span class="string">&quot;uploaded&quot;</span>)[<span class="number">0</span>]</span><br><span class="line">    file, err := fileHeader.Open()</span><br><span class="line">    <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">        data, err := ioutil.ReadAll(file)</span><br><span class="line">        <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">            fmt.Fprintln(w, <span class="type">string</span>(data))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    server := http.Server&#123;</span><br><span class="line">        Addr: <span class="string">&quot;127.0.0.1&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    http.HandleFunc(<span class="string">&quot;/process&quot;</span>, process)</span><br><span class="line">    server.ListenAndServe()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>或者用<code>FormFile()</code>方法</strong></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">process</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    file, _, err := r.FormFile(<span class="string">&quot;uploaded&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">        data, err := ioutil.ReadAll(file)</span><br><span class="line">        <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">            fmt.Fprintln(w, <span class="type">string</span>(data))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当文件只有一个时这特别有用</p>
+]]></content>
+      <tags>
+        <tag>Go</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Python中的生成器</title>
     <url>/2022/07/06/Generator-In-Python/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p><code>yield</code>是Python极其重要的一个关键字，它与Python中的<code>生成器</code>密切相关，然而<code>yield</code>的用法和<code>生成器</code>本身时不时让人困惑…</p>
@@ -117,6 +242,25 @@
 ]]></content>
       <tags>
         <tag>Python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Go并发的一些实践经验</title>
+    <url>/2022/07/26/Go-Concurrency/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>记录一下go并发的实践经验</p>
+<h3 id="内容"><a href="#内容" class="headerlink" title="? 内容"></a>? 内容</h3><ul>
+<li><p>当出现死锁时，考虑是否已用<code>make</code>将声明的<code>chan</code>初始化</p>
+</li>
+<li><p>永远在<strong>不同的</strong><code>goroutine</code>中发送和接收<code>channel</code>中的值，不要试图在main中发送并接收值</p>
+</li>
+<li><p>如果<code>chan</code>是<strong>无缓冲的</strong>，总是<strong>先</strong>运行一个<code>goroutine</code>来发送或接收值，<strong>然后</strong>再在main(或其它<code>goroutine</code>)中接收或发送</p>
+</li>
+<li><p>想要在<code>main</code>中同时收发<code>chan</code>中的值，考虑使用<strong>缓冲通道</strong></p>
+</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Go</tag>
       </tags>
   </entry>
   <entry>
@@ -270,131 +414,6 @@
 ]]></content>
       <tags>
         <tag>注解Aopbot</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Go中的请求和响应</title>
-    <url>/2022/07/23/Go-Request-Response/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>记录一下<code>go</code>中的请求和响应处理</p>
-<h2 id="请求"><a href="#请求" class="headerlink" title="? 请求"></a>? 请求</h2><h3 id="Request结构"><a href="#Request结构" class="headerlink" title="? Request结构"></a>? Request结构</h3><ul>
-<li><p><code>Request</code>结构既可以用于客户端也可以用于服务端</p>
-</li>
-<li><p><code>Request</code>结构</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Request <span class="keyword">struct</span> &#123;</span><br><span class="line">    <span class="comment">// Method specifies the HTTP method (GET, POST, PUT, etc.).</span></span><br><span class="line">    Method <span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    URL *url.URL <span class="comment">/*#*/</span></span><br><span class="line">    </span><br><span class="line">    Proto      <span class="type">string</span> <span class="comment">// &quot;HTTP/1.0&quot;</span></span><br><span class="line">    ProtoMajor <span class="type">int</span>    <span class="comment">// 1</span></span><br><span class="line">    ProtoMinor <span class="type">int</span>    <span class="comment">// 0</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Request Header</span></span><br><span class="line">    Header Header <span class="comment">/*#*/</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Request Body</span></span><br><span class="line">    Body io.ReadCloser <span class="comment">/*#*/</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// return a new copy of Body</span></span><br><span class="line">    <span class="comment">// used for client requests</span></span><br><span class="line">    <span class="comment">// For server requests, it is unused</span></span><br><span class="line">    GetBody <span class="function"><span class="keyword">func</span><span class="params">()</span></span> (io.ReadCloser, <span class="type">error</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// value -1 indicates that the length is unknown</span></span><br><span class="line">    <span class="comment">// Values &gt;= 0 indicate that the given number of bytes may</span></span><br><span class="line">	<span class="comment">// be read from Body</span></span><br><span class="line">    ContentLength <span class="type">int64</span></span><br><span class="line">    </span><br><span class="line">    TransferEncoding []<span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Close indicates whether to close the connection after</span></span><br><span class="line">	<span class="comment">// replying to this request (for servers) or after sending this</span></span><br><span class="line">	<span class="comment">// request and reading its response (for clients).</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">// For server requests, the HTTP server handles this automatically</span></span><br><span class="line">	<span class="comment">// and this field is not needed by Handlers.</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">// For client requests, setting this field prevents re-use of</span></span><br><span class="line">	<span class="comment">// TCP connections between requests to the same hosts, as if</span></span><br><span class="line">	<span class="comment">// Transport.DisableKeepAlives were set.</span></span><br><span class="line">    Close <span class="type">bool</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// thisis either the value of the &quot;Host&quot; header </span></span><br><span class="line">    <span class="comment">// or the host namegiven in the URL itself</span></span><br><span class="line">    Host <span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// including both the URL field&#x27;s query parameters</span></span><br><span class="line">    <span class="comment">// and the PATCH, POST, or PUT form data</span></span><br><span class="line">    Form url.Values <span class="comment">/*#*/</span></span><br><span class="line">    <span class="comment">// PostForm contains the parsed form data from PATCH, POST</span></span><br><span class="line">	<span class="comment">// or PUT body parameters</span></span><br><span class="line">    PostForm url.Values <span class="comment">/*#*/</span></span><br><span class="line">    <span class="comment">// MultipartForm is the parsed multipart form, including file uploads</span></span><br><span class="line">    MultipartForm *multipart.Form <span class="comment">/*#*/</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Trailer specifies additional headers </span></span><br><span class="line">    <span class="comment">// that are sent after the request body</span></span><br><span class="line">    Trailer Header</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// RemoteAddr allows HTTP servers and other software to record</span></span><br><span class="line">	<span class="comment">// the network address that sent the request</span></span><br><span class="line">    RemoteAddr <span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    RequestURI <span class="type">string</span></span><br><span class="line">    </span><br><span class="line">    TLS *tls.ConnectionState</span><br><span class="line">    </span><br><span class="line">    Cancel &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Response is the redirect response which caused this request</span></span><br><span class="line">	<span class="comment">// to be created. This field is only populated during client</span></span><br><span class="line">	<span class="comment">// redirects.</span></span><br><span class="line">	Response *Response</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h4 id="URL字段"><a href="#URL字段" class="headerlink" title="? URL字段"></a>? URL字段</h4><ul>
-<li><p><code>URL</code>结构体</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> URL <span class="keyword">struct</span> &#123;</span><br><span class="line">    Scheme   <span class="type">string</span></span><br><span class="line">    Opaque   <span class="type">string</span></span><br><span class="line">    User     *Userinfo</span><br><span class="line">    Host     <span class="type">string</span></span><br><span class="line">    Path     <span class="type">string</span></span><br><span class="line">    RawQuery <span class="type">string</span></span><br><span class="line">    Fragment <span class="type">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-</li>
-<li><p><code>URL</code>的一般结构</p>
-<blockquote>
-<p>scheme:&#x2F;&#x2F;[ userinfo@]host&#x2F;path[?query][#fragment]</p>
-</blockquote>
-</li>
-</ul>
-<h4 id="Header字段"><a href="#Header字段" class="headerlink" title="? Header字段"></a>? Header字段</h4><ul>
-<li>一个 首部就是一个映射， 这个映射的键为字符串， 值为字符串切片</li>
-</ul>
-<h5 id="获取和设置或修改Header中字段"><a href="#获取和设置或修改Header中字段" class="headerlink" title="? 获取和设置或修改Header中字段"></a>? 获取和设置或修改Header中字段</h5><ul>
-<li><ol>
-<li><p>通过切片访问<code>Header</code>中的特定字段，返回切片</p>
-<p><code>w.Header[&quot;Accept-Encodeing&quot;]</code></p>
-<p>结果：<code>[gzip, deflate]</code></p>
-</li>
-</ol>
-</li>
-<li><ol start="2">
-<li><p>通过<code>Get</code>和<code>Set</code>方法，<code>Get</code>返回逗号分隔的字符串</p>
-<p><code>w.Header.Get(&quot;Accept-Encodeing&quot;)</code></p>
-<p>结果：<code>gzip, deflate</code></p>
-</li>
-</ol>
-</li>
-</ul>
-<h4 id="Body字段"><a href="#Body字段" class="headerlink" title="? Body字段"></a>? Body字段</h4><ul>
-<li><p><code>Body</code>是一个<code>ReadCloser </code>接口， 该接口既包含了<code>Reader</code>接口，也包含了<code>Closer</code>接口</p>
-</li>
-<li><p>一个例子</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">body</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    <span class="built_in">len</span> := r.ContentLength</span><br><span class="line">    body := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="built_in">len</span>)</span><br><span class="line">    r.Body.Read(body)</span><br><span class="line">    fmt.Fprintln(w, <span class="type">string</span>(body))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    server := http.Server&#123;</span><br><span class="line">        Addr: <span class="string">&quot;127.0.0.1:8080&quot;</span>,</span><br><span class="line">    &#125;</span><br><span class="line">    http.HandleFunc(<span class="string">&quot;/body&quot;</span>, body)</span><br><span class="line">    server.ListenAndServe()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="Go与HTML表单"><a href="#Go与HTML表单" class="headerlink" title="? Go与HTML表单"></a>? Go与HTML表单</h3><h4 id="HTML表单的一般形式"><a href="#HTML表单的一般形式" class="headerlink" title="? HTML表单的一般形式"></a>? HTML表单的一般形式</h4><figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;/process&quot;</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;application/x-www-form-urlencoded&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;first_name&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;last_name&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h4 id="数据编码方式"><a href="#数据编码方式" class="headerlink" title="? 数据编码方式"></a>? 数据编码方式</h4><ul>
-<li><p><code>application/x-www-form-urlencoded</code></p>
-<p>将HTML中表单中的数据编码为连续的<strong>长查询字符串</strong></p>
-</li>
-<li><p><code>multipart/form-data</code></p>
-<p>将表单中的数据转换为一条<code>MIME报文</code>，表单中的每个键值对都构成了这条报文的一部分</p>
-</li>
-<li><p><code>text/plain</code></p>
-<p>HTML5支持</p>
-</li>
-</ul>
-<blockquote>
-<p>如何选择 ?</p>
-<ul>
-<li><code>application/x-www-form-urlencoded</code> （简单文本数据</li>
-<li><code>multipart/form-data</code> （传输大量数据，如上传文件</li>
-<li><code>text/plain</code> （&#96;&#96;Base64&#96;编码，文本方式传输二进制数据</li>
-</ul>
-</blockquote>
-<h3 id="表单的解析"><a href="#表单的解析" class="headerlink" title="? 表单的解析"></a>? 表单的解析</h3><h4 id="手动解析"><a href="#手动解析" class="headerlink" title="? 手动解析"></a>? 手动解析</h4><blockquote>
-<p><code>application/x-www-form-urlencoded</code>编码</p>
-</blockquote>
-<ul>
-<li><ol>
-<li>先调用<code>w.ParseForm()</code>方法</li>
-</ol>
-</li>
-<li><ol start="2">
-<li>通过<code>w.Form</code>字段访问表单数据和URL参数</li>
-</ol>
-</li>
-<li><ol start="3">
-<li>或者通过<code>w.PostForm</code>字段实现只访问表单数据</li>
-</ol>
-</li>
-</ul>
-<blockquote>
-<p><code>multipart/form-data</code>编码</p>
-</blockquote>
-<ul>
-<li><ol>
-<li>先调用<code>w.ParseMultipartForm()</code>方法</li>
-</ol>
-</li>
-<li><ol start="2">
-<li>通过<code>w.MultipartForm</code>字段访问表单数据或获取上传的文件</li>
-</ol>
-</li>
-</ul>
-<h4 id="自动解析"><a href="#自动解析" class="headerlink" title="? 自动解析"></a>? 自动解析</h4><ul>
-<li><code>FormValue(key string)</code></li>
-<li><code>PostFormValue(key string)</code></li>
-</ul>
-<p>这两个方法会自动调用<code>ParseForm()和ParseMultipartForm()</code>方法进行解析</p>
-<blockquote>
-<p>注：如果对应该键的值不止一个，方法只返回第一个值</p>
-</blockquote>
-<h3 id="文件上传和接收"><a href="#文件上传和接收" class="headerlink" title="? 文件上传和接收"></a>? 文件上传和接收</h3><p><strong>举个例子</strong></p>
-<ul>
-<li><p>HTML表单</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span> 　</span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span> 　 　</span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;Content-Type&quot;</span> <span class="attr">content</span>=<span class="string">&quot; text/html; charset=utf-8&quot;</span>/&gt;</span> 　 　</span><br><span class="line">    &lt; title&gt;Go Web Programming<span class="tag">&lt;/<span class="name">title</span>&gt;</span> </span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span> 　</span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span> 　 </span><br><span class="line">    <span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;http://localhost:8080/process?hello=world&amp;thread=123&quot;</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span> 　 　</span><br><span class="line">       <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;hello&quot;</span> <span class="attr">value</span>=<span class="string">&quot;sau sheong&quot;</span>/&gt;</span> 　 　 </span><br><span class="line">       <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;post&quot;</span> <span class="attr">value</span>=<span class="string">&quot;456&quot;</span>/&gt;</span> 　 　 　</span><br><span class="line">       <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> <span class="attr">name</span>=<span class="string">&quot;uploaded&quot;</span>/&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span>/&gt;</span> </span><br><span class="line">     <span class="tag">&lt;/<span class="name">form</span>&gt;</span> 　</span><br><span class="line">   <span class="tag">&lt;/<span class="name">body</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-</li>
-<li><p>Go处理</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span>(</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;io/util&quot;</span></span><br><span class="line">    <span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">process</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    r.ParseMultipartForm(<span class="number">1024</span>)</span><br><span class="line">    fileHeader := r.MultipartForm.File(<span class="string">&quot;uploaded&quot;</span>)[<span class="number">0</span>]</span><br><span class="line">    file, err := fileHeader.Open()</span><br><span class="line">    <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">        data, err := ioutil.ReadAll(file)</span><br><span class="line">        <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">            fmt.Fprintln(w, <span class="type">string</span>(data))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    server := http.Server&#123;</span><br><span class="line">        Addr: <span class="string">&quot;127.0.0.1&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    http.HandleFunc(<span class="string">&quot;/process&quot;</span>, process)</span><br><span class="line">    server.ListenAndServe()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<p><strong>或者用<code>FormFile()</code>方法</strong></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">process</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    file, _, err := r.FormFile(<span class="string">&quot;uploaded&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">        data, err := ioutil.ReadAll(file)</span><br><span class="line">        <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">            fmt.Fprintln(w, <span class="type">string</span>(data))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>当文件只有一个时这特别有用</p>
-]]></content>
-      <tags>
-        <tag>Go</tag>
       </tags>
   </entry>
 </search>
