@@ -74,6 +74,205 @@
       </tags>
   </entry>
   <entry>
+    <title>Python中的生成器</title>
+    <url>/2022/07/06/Generator-In-Python/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p><code>yield</code>是Python极其重要的一个关键字，它与Python中的<code>生成器</code>密切相关，然而<code>yield</code>的用法和<code>生成器</code>本身时不时让人困惑…</p>
+<h2 id="生成器和yield有什么用"><a href="#生成器和yield有什么用" class="headerlink" title="? 生成器和yield有什么用"></a>? 生成器和<code>yield</code>有什么用</h2><ul>
+<li><p>大多数情况下，使用<code>yield</code>都是为了将函数作为生成器使用(<code>yield</code>只能在函数中使用)</p>
+</li>
+<li><p>当有大量数据需要返回时生成器能够节省内存空间</p>
+</li>
+</ul>
+<h2 id="一些概念"><a href="#一些概念" class="headerlink" title="? 一些概念"></a>? 一些概念</h2><h3 id="可迭代对象"><a href="#可迭代对象" class="headerlink" title="? 可迭代对象"></a>? 可迭代对象</h3><blockquote>
+<p>Python中的任意对象，只要它定义了可以返回一个迭代器的<code>__iter__</code>方法，或者定义了可以支持下标索引的<code>__getitem__</code>方法，那么它就是一个可迭代对象。</p>
+<p>简单说，可迭代对象就是能提供迭代器的任意对象</p>
+</blockquote>
+<h3 id="迭代器"><a href="#迭代器" class="headerlink" title="? 迭代器"></a>? 迭代器</h3><blockquote>
+<p>任意对象，只要它定义了<code>next</code>（Python2）或<code>__next__</code>方法，那么它就是一个迭代器</p>
+</blockquote>
+<h3 id="迭代"><a href="#迭代" class="headerlink" title="? 迭代"></a>? 迭代</h3><blockquote>
+<p>用简单的话讲，它就是从某个地方（比如一个列表）取出一个元素的过程。当我们使用一个循环来遍历某个东西时，这个过程本身就叫迭代</p>
+</blockquote>
+<h2 id="生成器"><a href="#生成器" class="headerlink" title="? 生成器"></a>? 生成器</h2><h3 id="概念"><a href="#概念" class="headerlink" title="? 概念"></a>? 概念</h3><blockquote>
+<p>生成器也是一种迭代器，但是你只能对其迭代一次。这是因为它们并没有把所有的值存在内存中，而是在运行时生成值</p>
+<p>你通过遍历来使用它们，要么用一个”for”循环，要么将它们传递给任意可以进行迭代的函数（比如<code>next()</code>）或结构</p>
+<p>大多数时候生成器是以函数来实现的（当然，类也可以，但函数较为简便）。然而，它们并不返回一个值，而是<code>yield</code>（产生）一个值</p>
+</blockquote>
+<h3 id="一些例子"><a href="#一些例子" class="headerlink" title="? 一些例子"></a>? 一些例子</h3><p><strong>正常思路的斐波那契:</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fab</span>(<span class="params"><span class="built_in">max</span></span>):</span><br><span class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    L = [] <span class="comment"># 拿一个列表来存数据，提高复用性</span></span><br><span class="line">    <span class="keyword">while</span> n &lt; <span class="built_in">max</span>:</span><br><span class="line">        L.append(b)</span><br><span class="line">        a, b = b, a + b</span><br><span class="line">        n = n + <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> L</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> fab(<span class="number">5</span>):</span><br><span class="line">    <span class="built_in">print</span>(n)</span><br></pre></td></tr></table></figure>
+
+<p>这么做会使该函数的内存占用随参数<code>max</code>增大而增加。</p>
+<p><strong>生成器类构建的斐波那契:</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Fab</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, <span class="built_in">max</span></span>):</span><br><span class="line">        self.<span class="built_in">max</span> = <span class="built_in">max</span></span><br><span class="line">        self.n, self.a, self.b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__iter__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__next__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> self.n &lt; self.<span class="built_in">max</span>:</span><br><span class="line">            r = self.b</span><br><span class="line">            self.a, self.b = self.b, self.a + self.b</span><br><span class="line">            self.n = self.n + <span class="number">1</span></span><br><span class="line">            <span class="keyword">return</span> r</span><br><span class="line">        <span class="keyword">raise</span> StopIteration()</span><br><span class="line">        </span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> Fab(<span class="number">5</span>):</span><br><span class="line">    <span class="built_in">print</span>(n)</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>生成器函数构建的斐波那契:</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fab</span>(<span class="params">n</span>):</span><br><span class="line">    a = b = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(n):</span><br><span class="line">        <span class="keyword">yield</span> a</span><br><span class="line">        a, b = b, a + b</span><br></pre></td></tr></table></figure>
+
+<h3 id="一些关于迭代器的内置函数"><a href="#一些关于迭代器的内置函数" class="headerlink" title="? 一些关于迭代器的内置函数"></a>? 一些关于迭代器的内置函数</h3><ul>
+<li><code>next()</code>  获取迭代器的下一个值</li>
+<li><code>iter()</code>  以可迭代对象（比如字符串）为参数，返回一个迭代器对象</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Go-Web</title>
+    <url>/2022/07/05/Go-Web/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>最近看了下<code>Go Web编程</code>这本书，再去看了下源码，想对<code>net/http</code>包中的一些关键的函数，接口的定义和关系做一个记录</p>
+<h3 id="多路复用器"><a href="#多路复用器" class="headerlink" title="? 多路复用器"></a>? 多路复用器</h3><blockquote>
+<p>Go中web应用需要对客户端的请求响应，为了将不同请求URL转发到不同的处理器(Handler)进行处理需要用到多路复用器(ServeMux)</p>
+</blockquote>
+<ul>
+<li><p><code>(var) DefaultServeMux</code>: <code>ListenAndServe(string, Handler) error</code> 中第二个参数的默认值，实质是一个指向<code>ServeMux</code>类型的指针，是<code>ServeMux</code>的一个实例，但<code>ServeMux</code>同时又实现了Handler接口(故可以充当第二个参数的默认值)</p>
+<p><strong>源码:</strong></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// DefaultServeMux is the default ServeMux used by Serve.</span></span><br><span class="line"><span class="keyword">var</span> DefaultServeMux = &amp;defaultServeMux</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> defaultServeMux ServeMux</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p><code>(func) NewServeMux()</code>: 返回一个<code>ServeMux</code></p>
+</li>
+<li><p><code>(struct) ServeMux</code>: 多路复用器结构，负责URL的路径和处理的映射，以及通过<code>自身的ServeHTTP</code>方法调用URL映射对应的<code>处理器的ServeHTTP方法</code></p>
+<p><strong>源码:</strong></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> ServeMux <span class="keyword">struct</span> &#123;</span><br><span class="line">	mu    sync.RWMutex</span><br><span class="line">	m     <span class="keyword">map</span>[<span class="type">string</span>]muxEntry</span><br><span class="line">	es    []muxEntry <span class="comment">// slice of entries sorted from longest to shortest.</span></span><br><span class="line">	hosts <span class="type">bool</span>       <span class="comment">// whether any patterns contain hostnames</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="服务器"><a href="#服务器" class="headerlink" title="?  服务器"></a>?  服务器</h3><blockquote>
+<p>负责启动监听和配置服务</p>
+<p>如果简单配置可以直接调<code>http.ListenAndServe</code>函数来进行监听，复杂配置则需要构建一个Server结构体来调用其ListenAndServe方法</p>
+</blockquote>
+<ul>
+<li><p><code>(struct) Server</code>: 用于细化配置的结构体</p>
+<p><strong>源码:</strong></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Server <span class="keyword">struct</span> &#123;</span><br><span class="line">    Addr <span class="type">string</span></span><br><span class="line">    Handler Handler</span><br><span class="line">    </span><br><span class="line">    TLSConfig *tls.Config</span><br><span class="line">    </span><br><span class="line">    ReadTimeout time.Duration</span><br><span class="line">    ReadHeaderTimeout time.Duration</span><br><span class="line">    WriteTimeout time.Duration</span><br><span class="line">    IdleTimeout time.Duration</span><br><span class="line">    </span><br><span class="line">    MaxHeaderBytes <span class="type">int</span></span><br><span class="line">    </span><br><span class="line">    TLSNextProto <span class="keyword">map</span>[<span class="type">string</span>]<span class="function"><span class="keyword">func</span><span class="params">(*Server, *tls.Conn, Handler)</span></span></span><br><span class="line">    </span><br><span class="line">    ConnState <span class="function"><span class="keyword">func</span><span class="params">(net.Conn, ConnState)</span></span></span><br><span class="line">    </span><br><span class="line">    ErrorLog *log.Logger</span><br><span class="line">    </span><br><span class="line">    BaseContext <span class="function"><span class="keyword">func</span><span class="params">(net.Listener)</span></span> context.Context</span><br><span class="line">    ConnContext <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, c net.Conn)</span></span> context.Context</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>(func) ListenAndServe(addr string, handler Handler) error</code>: 开启监听和进行处理，是整个web应用的启动器</p>
+</li>
+<li><p><code>(func) ListenAndServeTLS(addr, certFile, keyFile string, handler Handler) error</code>: ListenAndServe的https版本</p>
+</li>
+</ul>
+<h3 id="处理器和处理器函数"><a href="#处理器和处理器函数" class="headerlink" title="?  处理器和处理器函数"></a>?  处理器和处理器函数</h3><blockquote>
+<p>Go web中实际处理请求的函数或类型</p>
+<p>处理器：实现了Handler接口的任意类型，可以是结构体，函数类型等</p>
+<p>处理器函数：普通的函数，但是必须要以 <code>http.ResponseWriter</code>和<code>*http.Request</code>为参数</p>
+</blockquote>
+<ul>
+<li><p><code>(interface) Handler &#123;ServeHTTP(ResponseWriter, *Request)&#125;</code>: 处理器接口，实现了该接口的即为处理器</p>
+</li>
+<li><p><code>(func) http.Handle(pattern string, handler Handler)</code>: 将Handler和DefaultServeMux (或<code>自定义的ServeMux</code>) 绑定，使其处理<code>pattern</code>上的请求。实质是<code>ServeMux</code>的方法，方便调用故在http包中创建。<strong>实质:</strong></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// http.Handle</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Handle</span><span class="params">(pattern <span class="type">string</span>, handler Handleer)</span></span> &#123;</span><br><span class="line">    DefaultServeMux.Handle(pattern, handler)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在server.go源码中</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p><code>(func) http.HandleFunc(pattern string, handler func(ResponseWriter, *Request))</code>: 将处理器函数与<code>ServeMux</code>绑定并监听<code>pattern</code>路径。实质会被转换为一个<code>Handler</code>:</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// http.HandleFunc</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">HandleFunc</span><span class="params">(pattern <span class="type">string</span>, handler <span class="keyword">func</span>(ResponseWriter, *Request)</span></span>) &#123;</span><br><span class="line">    DefaultServeMux.HandleFunc(pattern, handler)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ServeMux.HandleFunc</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(mux *ServeMux)</span></span> HandleFunc(pattern <span class="type">string</span>, handler <span class="function"><span class="keyword">func</span><span class="params">(ResponseWriter, *Request)</span></span>) &#123;</span><br><span class="line">    mux.Handle(pattern, HandlerFunc(handler))</span><br><span class="line">&#125; <span class="comment">// 通过显式类型转换将底层类型相同的handler转换为HandlerFunc类型</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// HandlerFunc是个函数类型</span></span><br><span class="line"><span class="keyword">type</span> HandlerFunc <span class="function"><span class="keyword">func</span><span class="params">(ResponseWriter, *Request)</span></span></span><br><span class="line"><span class="comment">/*并且它实现了Handler接口，也就是说，</span></span><br><span class="line"><span class="comment">HandlerFunc类型是个处理器(Handler),</span></span><br><span class="line"><span class="comment">故调用HandleFunc方法实质是调用Handle方法，</span></span><br><span class="line"><span class="comment">且将一个普通函数类型的参数转换成了一个处理器</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(f HandlerFunc)</span></span> ServeHTTP(w ResponseWriter, r *Request) &#123;</span><br><span class="line">  f(w, r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Go</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>注解和Aop重写bot</title>
+    <url>/2022/04/29/Rewrite-Bot-With-Reflection-And-Aop/</url>
+    <content><![CDATA[<h2 id="？前言"><a href="#？前言" class="headerlink" title="？前言"></a>？前言</h2><p>之前就有个想法把bot用spring重写一下。了解完一些基础的东西后终于能开写了。</p>
+<h2 id="？基于注解加反射"><a href="#？基于注解加反射" class="headerlink" title="？基于注解加反射"></a>？基于注解加反射</h2><h3 id="推"><a href="#推" class="headerlink" title="推"></a>推</h3><p>这一点是看了<a href="https://nuotian.furry.pro/blog/archives/244"><code>诺天的博客</code></a>。</p>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
+<li><ol>
+<li>写个自定义注解用以标记方法</li>
+</ol>
+</li>
+<li><ol start="2">
+<li><p>利用spring自带的<code>SpringUtil.getApplicationContext().getBeansWithAnnotation(Controller.class)</code>来获取所有被@Controller标记的类的bean。</p>
+<p>   【注： 这里的SpringUtil是你自己的写的任意实现了<code>ApplicationContextAware</code>接口的类的名字。并且注解类型必须是Spring里的注解（@Controller,@Component等，不然获取不到bean</p>
+</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>利用反射的相关方法获取所有方法。再做个遍历筛选出带有自定义注解的方法加入一个列表。</li>
+</ol>
+</li>
+<li><ol start="4">
+<li>监听器中调用这个列表进行逻辑判断，确定什么时候调用并传入方法需要的实参</li>
+</ol>
+</li>
+<li><ol start="5">
+<li>这样发消息的时候就能实现自动判断并执行</li>
+</ol>
+</li>
+</ul>
+<h3 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h3><p>博客里写的已经很详细了。但是总感觉有些功能还可以再补充一下：</p>
+<ul>
+<li><p>逻辑判断和多种权限：</p>
+<p>  一：<a class="link"   href="https://nuotian.furry.pro/blog/" >诺天<i class="fas fa-external-link-alt"></i></a>写的消息的逻辑判断是放在注解中，再和bot接收到的消息进行对比来实现的。但是这样</p>
+<p>  逻辑一复杂就会让监听器太冗杂。</p>
+<p>  二：一个注解只能让一个方法用于Group或Friend，没法多个权限</p>
+<p>  解决方案：</p>
+<ul>
+<li><p>(一)让注解可重复，增加注解元素</p>
+<p>  @Event注解：</p>
+  <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Target(ElementType.METHOD)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Repeatable(Events.class)</span> <span class="comment">// 元注解，使该注解能重复。@Events是含有 返回Event[] 的方法的注解</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Event</span><br><span class="line">&#123;</span><br><span class="line">    EventEnum <span class="title function_">eventType</span><span class="params">()</span> <span class="keyword">default</span> EventEnum.NONE; <span class="comment">// EventEnum是个枚举类</span></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">authority</span><span class="params">()</span> <span class="keyword">default</span> <span class="literal">false</span>; <span class="comment">// 第一层判断,是否开启这个方法</span></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">judgeByMethod</span><span class="params">()</span> <span class="keyword">default</span> <span class="literal">false</span>; <span class="comment">// 复杂判断时开启这个</span></span><br><span class="line">    String <span class="title function_">message</span><span class="params">()</span> <span class="keyword">default</span> <span class="string">&quot;&quot;</span>; <span class="comment">// 第二层判断,触发条件</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>  @Events注解：</p>
+  <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Target(ElementType.METHOD)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Events</span><br><span class="line">&#123;</span><br><span class="line">    Event[] value();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 注意@Events注解必须写@Target，且元素类型是@Event的子集</p>
+</blockquote>
+</li>
+<li><p>(二)除了message的判断，再在反射时把<code>MessageChain</code>传进去。</p>
+<ul>
+<li>复杂的方法把<code>judgeByMethod</code>设为true，让方法利用<code>MessageChain</code>获得消息进行逻辑处理</li>
+<li>简单的方法把<code>judgeByMethod</code>设为false，利用<code>message</code>注解元素在监听器中进行equals判断</li>
+</ul>
+</li>
+<li><p>结果：利用<code>authority</code>和<code>message</code>来灵活分配权限(虽然也不灵活就是了)；<code>judgeByMethod</code>实现判断权限转移</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="？基于注解和切面编程-Aop"><a href="#？基于注解和切面编程-Aop" class="headerlink" title="？基于注解和切面编程(Aop)"></a>？基于注解和切面编程(Aop)</h2><p>因为Aop是根据反射开发的，于是我想能不能用Aop写一个。</p>
+<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><p>利用Aop对被指定注解标记的方法进行增强。在方法执行前进行一个判断。</p>
+<h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><p>Aop部分：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">类上标注<span class="meta">@Aspect</span>注解</span><br><span class="line"></span><br><span class="line"><span class="comment">// 切入点 实际切入的方法</span></span><br><span class="line"><span class="comment">// 注意是对Events切入，因为多个Event注解其实在获取的时候会转换成@Events(&#123;@Event(xx), @Event(xx)&#125;)</span></span><br><span class="line"><span class="meta">@PointCut(&quot;@annotation(com.yanfang.animabotaop.annotations.Events)&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">judgeMethodPointCut</span><span class="params">()</span> &#123;&#125; <span class="comment">// 切入方法？</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 环绕通知</span></span><br><span class="line"><span class="comment">// &amp;&amp; @annotation(events)是传入参数给通知方法的一种手段，可以省去声明</span></span><br><span class="line"><span class="comment">// around方法参数名要和@Around中一致</span></span><br><span class="line"><span class="comment">// ProceedingJoinPoint 是环绕通知特有的，是JoinPoint的子接口，其他通知为JoinPoint。</span></span><br><span class="line"><span class="comment">// 该参数的功能很强大</span></span><br><span class="line"><span class="meta">@Around(&quot;judgeMethodPointCut() &amp;&amp; @annotation(events)&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">around</span><span class="params">(<span class="meta">@NotNull</span> ProceedingJoinPoint jpt, <span class="meta">@NotNull</span> Events events)</span> <span class="keyword">throws</span> Throwable</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">for</span> (Event eventAnnotation : events.value())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 获取实参值（注意是“值”</span></span><br><span class="line">        Object[] argValues = jpt.getArgs();</span><br><span class="line">        <span class="comment">// 获取传入的event，这里默认所有方法第一个参数都是MessageEvent</span></span><br><span class="line">        <span class="type">MessageEvent</span> <span class="variable">event</span> <span class="operator">=</span> (MessageEvent) argValues[<span class="number">0</span>];</span><br><span class="line">        <span class="comment">// 进行逻辑判断，这里和用反射时一样</span></span><br><span class="line">        <span class="keyword">if</span> (eventAnnotation.authority())</span><br><span class="line">            &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;已授权&quot;</span>);</span><br><span class="line">                <span class="comment">// 有复杂逻辑就将judgeByMethod设为true， 交给方法进行复杂逻辑处理</span></span><br><span class="line">                <span class="keyword">if</span> (eventAnnotation.judgeByMethod() || (eventAnnotation.message().equals(event.getMessage().contentToString())))</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">if</span> (event.getSubject() <span class="keyword">instanceof</span> Group &amp;&amp; eventAnnotation.eventType() == EventEnum.GROUPEVENT)</span><br><span class="line">                    &#123;</span><br><span class="line">                        joinPoint.proceed(argValues);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (event.getSubject() <span class="keyword">instanceof</span> Friend &amp;&amp; eventAnnotation.eventType() == EventEnum.MASTEREVENT)</span><br><span class="line">                    &#123;</span><br><span class="line">                        joinPoint.proceed(argValues);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (event.getSubject() <span class="keyword">instanceof</span> Member &amp;&amp; eventAnnotation.eventType() == EventEnum.TEMPEVENT)</span><br><span class="line">                    &#123;</span><br><span class="line">                        joinPoint.proceed(argValues);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>监听器方法方面：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@EventHandler</span></span><br><span class="line"><span class="keyword">public</span> ListeningStatus <span class="title function_">onMessage</span><span class="params">(<span class="meta">@NotNull</span> MessageEvent event)</span> <span class="keyword">throws</span> Exception</span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">@NotNull</span> <span class="type">Test</span> <span class="variable">test</span> <span class="operator">=</span> SpringUtil.getBean(Test.class);</span><br><span class="line">    test.test(event);</span><br><span class="line">    <span class="keyword">return</span> ListeningStatus.LISTENING;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试类：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">@Events(@Event(eventType = EventEnum.MASTEREVENT, authority = true, message = &quot;test&quot;))</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">(MessageEvent event)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (event == <span class="literal">null</span>) System.out.println(<span class="string">&quot;event 为空&quot;</span>);</span><br><span class="line">        <span class="keyword">else</span> event.getSubject().sendMessage(<span class="string">&quot;get&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<p>authority为true时发送了get， 为false时没发送get。说明执行了环绕通知</p>
+<h3 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h3><ul>
+<li>注意Aop和反射不同的一点是：反射可以帮助传入实参；而Aop只能获取方法被传入的实参进行处理，而不能传入参数（毕竟Aop的原衷是不影响方法本身的情况下进行对方法的增强。<ul>
+<li>而实参在监听器方法里传入</li>
+</ul>
+</li>
+<li>这里不能通过获取所有Event注解， 再分别进行处理，而需要获取@Events，再通过它的value()元素获取所有的@Event注解 [即使表面上可以在方法上多写几个@Event注解。但实际是<code>@Events(&#123;@Event(...), @Event(...)&#125;)</code>,但是用反射好像可以直接获取多个@Event注解进行遍历处理</li>
+<li>注意通知的方法<code>around()</code>传参不能直接传入，而是需要在<code>@Around</code>中传入。否则会<code>报空</code>。（其实是获取方法上的@Events注解，然后传进around()方法</li>
+</ul>
+<h2 id="？比较与总结"><a href="#？比较与总结" class="headerlink" title="？比较与总结"></a>？比较与总结</h2><p>总的来说，各有优缺。</p>
+<ul>
+<li><p>反射：先进行判断，然后再根据判断结果来决定是否执行方法</p>
+</li>
+<li><p>Aop：要先调用方法（注意还并没有实际执行），进而会触发通知，用通知中的方法进行逻辑判断</p>
+</li>
+<li><p>反射代码较多，但是处理上更灵活，不必先调用方法</p>
+</li>
+<li><p>Aop要先调用方法，才会触发通知，但是代码量更少，更简洁</p>
+</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>注解Aopbot</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Go中的请求和响应</title>
     <url>/2022/07/23/Go-Request-Response/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>记录一下<code>go</code>中的请求和响应处理</p>
@@ -193,205 +392,6 @@
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">process</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    file, _, err := r.FormFile(<span class="string">&quot;uploaded&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">        data, err := ioutil.ReadAll(file)</span><br><span class="line">        <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">            fmt.Fprintln(w, <span class="type">string</span>(data))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>当文件只有一个时这特别有用</p>
-]]></content>
-      <tags>
-        <tag>Go</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Python中的生成器</title>
-    <url>/2022/07/06/Generator-In-Python/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p><code>yield</code>是Python极其重要的一个关键字，它与Python中的<code>生成器</code>密切相关，然而<code>yield</code>的用法和<code>生成器</code>本身时不时让人困惑…</p>
-<h2 id="生成器和yield有什么用"><a href="#生成器和yield有什么用" class="headerlink" title="? 生成器和yield有什么用"></a>? 生成器和<code>yield</code>有什么用</h2><ul>
-<li><p>大多数情况下，使用<code>yield</code>都是为了将函数作为生成器使用(<code>yield</code>只能在函数中使用)</p>
-</li>
-<li><p>当有大量数据需要返回时生成器能够节省内存空间</p>
-</li>
-</ul>
-<h2 id="一些概念"><a href="#一些概念" class="headerlink" title="? 一些概念"></a>? 一些概念</h2><h3 id="可迭代对象"><a href="#可迭代对象" class="headerlink" title="? 可迭代对象"></a>? 可迭代对象</h3><blockquote>
-<p>Python中的任意对象，只要它定义了可以返回一个迭代器的<code>__iter__</code>方法，或者定义了可以支持下标索引的<code>__getitem__</code>方法，那么它就是一个可迭代对象。</p>
-<p>简单说，可迭代对象就是能提供迭代器的任意对象</p>
-</blockquote>
-<h3 id="迭代器"><a href="#迭代器" class="headerlink" title="? 迭代器"></a>? 迭代器</h3><blockquote>
-<p>任意对象，只要它定义了<code>next</code>（Python2）或<code>__next__</code>方法，那么它就是一个迭代器</p>
-</blockquote>
-<h3 id="迭代"><a href="#迭代" class="headerlink" title="? 迭代"></a>? 迭代</h3><blockquote>
-<p>用简单的话讲，它就是从某个地方（比如一个列表）取出一个元素的过程。当我们使用一个循环来遍历某个东西时，这个过程本身就叫迭代</p>
-</blockquote>
-<h2 id="生成器"><a href="#生成器" class="headerlink" title="? 生成器"></a>? 生成器</h2><h3 id="概念"><a href="#概念" class="headerlink" title="? 概念"></a>? 概念</h3><blockquote>
-<p>生成器也是一种迭代器，但是你只能对其迭代一次。这是因为它们并没有把所有的值存在内存中，而是在运行时生成值</p>
-<p>你通过遍历来使用它们，要么用一个”for”循环，要么将它们传递给任意可以进行迭代的函数（比如<code>next()</code>）或结构</p>
-<p>大多数时候生成器是以函数来实现的（当然，类也可以，但函数较为简便）。然而，它们并不返回一个值，而是<code>yield</code>（产生）一个值</p>
-</blockquote>
-<h3 id="一些例子"><a href="#一些例子" class="headerlink" title="? 一些例子"></a>? 一些例子</h3><p><strong>正常思路的斐波那契:</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fab</span>(<span class="params"><span class="built_in">max</span></span>):</span><br><span class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    L = [] <span class="comment"># 拿一个列表来存数据，提高复用性</span></span><br><span class="line">    <span class="keyword">while</span> n &lt; <span class="built_in">max</span>:</span><br><span class="line">        L.append(b)</span><br><span class="line">        a, b = b, a + b</span><br><span class="line">        n = n + <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> L</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> fab(<span class="number">5</span>):</span><br><span class="line">    <span class="built_in">print</span>(n)</span><br></pre></td></tr></table></figure>
-
-<p>这么做会使该函数的内存占用随参数<code>max</code>增大而增加。</p>
-<p><strong>生成器类构建的斐波那契:</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Fab</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, <span class="built_in">max</span></span>):</span><br><span class="line">        self.<span class="built_in">max</span> = <span class="built_in">max</span></span><br><span class="line">        self.n, self.a, self.b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__iter__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__next__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> self.n &lt; self.<span class="built_in">max</span>:</span><br><span class="line">            r = self.b</span><br><span class="line">            self.a, self.b = self.b, self.a + self.b</span><br><span class="line">            self.n = self.n + <span class="number">1</span></span><br><span class="line">            <span class="keyword">return</span> r</span><br><span class="line">        <span class="keyword">raise</span> StopIteration()</span><br><span class="line">        </span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> Fab(<span class="number">5</span>):</span><br><span class="line">    <span class="built_in">print</span>(n)</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>生成器函数构建的斐波那契:</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fab</span>(<span class="params">n</span>):</span><br><span class="line">    a = b = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(n):</span><br><span class="line">        <span class="keyword">yield</span> a</span><br><span class="line">        a, b = b, a + b</span><br></pre></td></tr></table></figure>
-
-<h3 id="一些关于迭代器的内置函数"><a href="#一些关于迭代器的内置函数" class="headerlink" title="? 一些关于迭代器的内置函数"></a>? 一些关于迭代器的内置函数</h3><ul>
-<li><code>next()</code>  获取迭代器的下一个值</li>
-<li><code>iter()</code>  以可迭代对象（比如字符串）为参数，返回一个迭代器对象</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>Python</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>注解和Aop重写bot</title>
-    <url>/2022/04/29/Rewrite-Bot-With-Reflection-And-Aop/</url>
-    <content><![CDATA[<h2 id="？前言"><a href="#？前言" class="headerlink" title="？前言"></a>？前言</h2><p>之前就有个想法把bot用spring重写一下。了解完一些基础的东西后终于能开写了。</p>
-<h2 id="？基于注解加反射"><a href="#？基于注解加反射" class="headerlink" title="？基于注解加反射"></a>？基于注解加反射</h2><h3 id="推"><a href="#推" class="headerlink" title="推"></a>推</h3><p>这一点是看了<a href="https://nuotian.furry.pro/blog/archives/244"><code>诺天的博客</code></a>。</p>
-<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><ul>
-<li><ol>
-<li>写个自定义注解用以标记方法</li>
-</ol>
-</li>
-<li><ol start="2">
-<li><p>利用spring自带的<code>SpringUtil.getApplicationContext().getBeansWithAnnotation(Controller.class)</code>来获取所有被@Controller标记的类的bean。</p>
-<p>   【注： 这里的SpringUtil是你自己的写的任意实现了<code>ApplicationContextAware</code>接口的类的名字。并且注解类型必须是Spring里的注解（@Controller,@Component等，不然获取不到bean</p>
-</li>
-</ol>
-</li>
-<li><ol start="3">
-<li>利用反射的相关方法获取所有方法。再做个遍历筛选出带有自定义注解的方法加入一个列表。</li>
-</ol>
-</li>
-<li><ol start="4">
-<li>监听器中调用这个列表进行逻辑判断，确定什么时候调用并传入方法需要的实参</li>
-</ol>
-</li>
-<li><ol start="5">
-<li>这样发消息的时候就能实现自动判断并执行</li>
-</ol>
-</li>
-</ul>
-<h3 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h3><p>博客里写的已经很详细了。但是总感觉有些功能还可以再补充一下：</p>
-<ul>
-<li><p>逻辑判断和多种权限：</p>
-<p>  一：<a class="link"   href="https://nuotian.furry.pro/blog/" >诺天<i class="fas fa-external-link-alt"></i></a>写的消息的逻辑判断是放在注解中，再和bot接收到的消息进行对比来实现的。但是这样</p>
-<p>  逻辑一复杂就会让监听器太冗杂。</p>
-<p>  二：一个注解只能让一个方法用于Group或Friend，没法多个权限</p>
-<p>  解决方案：</p>
-<ul>
-<li><p>(一)让注解可重复，增加注解元素</p>
-<p>  @Event注解：</p>
-  <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Target(ElementType.METHOD)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Repeatable(Events.class)</span> <span class="comment">// 元注解，使该注解能重复。@Events是含有 返回Event[] 的方法的注解</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Event</span><br><span class="line">&#123;</span><br><span class="line">    EventEnum <span class="title function_">eventType</span><span class="params">()</span> <span class="keyword">default</span> EventEnum.NONE; <span class="comment">// EventEnum是个枚举类</span></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">authority</span><span class="params">()</span> <span class="keyword">default</span> <span class="literal">false</span>; <span class="comment">// 第一层判断,是否开启这个方法</span></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">judgeByMethod</span><span class="params">()</span> <span class="keyword">default</span> <span class="literal">false</span>; <span class="comment">// 复杂判断时开启这个</span></span><br><span class="line">    String <span class="title function_">message</span><span class="params">()</span> <span class="keyword">default</span> <span class="string">&quot;&quot;</span>; <span class="comment">// 第二层判断,触发条件</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>  @Events注解：</p>
-  <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Target(ElementType.METHOD)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Events</span><br><span class="line">&#123;</span><br><span class="line">    Event[] value();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p> 注意@Events注解必须写@Target，且元素类型是@Event的子集</p>
-</blockquote>
-</li>
-<li><p>(二)除了message的判断，再在反射时把<code>MessageChain</code>传进去。</p>
-<ul>
-<li>复杂的方法把<code>judgeByMethod</code>设为true，让方法利用<code>MessageChain</code>获得消息进行逻辑处理</li>
-<li>简单的方法把<code>judgeByMethod</code>设为false，利用<code>message</code>注解元素在监听器中进行equals判断</li>
-</ul>
-</li>
-<li><p>结果：利用<code>authority</code>和<code>message</code>来灵活分配权限(虽然也不灵活就是了)；<code>judgeByMethod</code>实现判断权限转移</p>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="？基于注解和切面编程-Aop"><a href="#？基于注解和切面编程-Aop" class="headerlink" title="？基于注解和切面编程(Aop)"></a>？基于注解和切面编程(Aop)</h2><p>因为Aop是根据反射开发的，于是我想能不能用Aop写一个。</p>
-<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><p>利用Aop对被指定注解标记的方法进行增强。在方法执行前进行一个判断。</p>
-<h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><p>Aop部分：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">类上标注<span class="meta">@Aspect</span>注解</span><br><span class="line"></span><br><span class="line"><span class="comment">// 切入点 实际切入的方法</span></span><br><span class="line"><span class="comment">// 注意是对Events切入，因为多个Event注解其实在获取的时候会转换成@Events(&#123;@Event(xx), @Event(xx)&#125;)</span></span><br><span class="line"><span class="meta">@PointCut(&quot;@annotation(com.yanfang.animabotaop.annotations.Events)&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">judgeMethodPointCut</span><span class="params">()</span> &#123;&#125; <span class="comment">// 切入方法？</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 环绕通知</span></span><br><span class="line"><span class="comment">// &amp;&amp; @annotation(events)是传入参数给通知方法的一种手段，可以省去声明</span></span><br><span class="line"><span class="comment">// around方法参数名要和@Around中一致</span></span><br><span class="line"><span class="comment">// ProceedingJoinPoint 是环绕通知特有的，是JoinPoint的子接口，其他通知为JoinPoint。</span></span><br><span class="line"><span class="comment">// 该参数的功能很强大</span></span><br><span class="line"><span class="meta">@Around(&quot;judgeMethodPointCut() &amp;&amp; @annotation(events)&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">around</span><span class="params">(<span class="meta">@NotNull</span> ProceedingJoinPoint jpt, <span class="meta">@NotNull</span> Events events)</span> <span class="keyword">throws</span> Throwable</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">for</span> (Event eventAnnotation : events.value())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 获取实参值（注意是“值”</span></span><br><span class="line">        Object[] argValues = jpt.getArgs();</span><br><span class="line">        <span class="comment">// 获取传入的event，这里默认所有方法第一个参数都是MessageEvent</span></span><br><span class="line">        <span class="type">MessageEvent</span> <span class="variable">event</span> <span class="operator">=</span> (MessageEvent) argValues[<span class="number">0</span>];</span><br><span class="line">        <span class="comment">// 进行逻辑判断，这里和用反射时一样</span></span><br><span class="line">        <span class="keyword">if</span> (eventAnnotation.authority())</span><br><span class="line">            &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;已授权&quot;</span>);</span><br><span class="line">                <span class="comment">// 有复杂逻辑就将judgeByMethod设为true， 交给方法进行复杂逻辑处理</span></span><br><span class="line">                <span class="keyword">if</span> (eventAnnotation.judgeByMethod() || (eventAnnotation.message().equals(event.getMessage().contentToString())))</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">if</span> (event.getSubject() <span class="keyword">instanceof</span> Group &amp;&amp; eventAnnotation.eventType() == EventEnum.GROUPEVENT)</span><br><span class="line">                    &#123;</span><br><span class="line">                        joinPoint.proceed(argValues);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (event.getSubject() <span class="keyword">instanceof</span> Friend &amp;&amp; eventAnnotation.eventType() == EventEnum.MASTEREVENT)</span><br><span class="line">                    &#123;</span><br><span class="line">                        joinPoint.proceed(argValues);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (event.getSubject() <span class="keyword">instanceof</span> Member &amp;&amp; eventAnnotation.eventType() == EventEnum.TEMPEVENT)</span><br><span class="line">                    &#123;</span><br><span class="line">                        joinPoint.proceed(argValues);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>监听器方法方面：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@EventHandler</span></span><br><span class="line"><span class="keyword">public</span> ListeningStatus <span class="title function_">onMessage</span><span class="params">(<span class="meta">@NotNull</span> MessageEvent event)</span> <span class="keyword">throws</span> Exception</span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">@NotNull</span> <span class="type">Test</span> <span class="variable">test</span> <span class="operator">=</span> SpringUtil.getBean(Test.class);</span><br><span class="line">    test.test(event);</span><br><span class="line">    <span class="keyword">return</span> ListeningStatus.LISTENING;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>测试类：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">@Events(@Event(eventType = EventEnum.MASTEREVENT, authority = true, message = &quot;test&quot;))</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">(MessageEvent event)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (event == <span class="literal">null</span>) System.out.println(<span class="string">&quot;event 为空&quot;</span>);</span><br><span class="line">        <span class="keyword">else</span> event.getSubject().sendMessage(<span class="string">&quot;get&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>结果：</p>
-<p>authority为true时发送了get， 为false时没发送get。说明执行了环绕通知</p>
-<h3 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h3><ul>
-<li>注意Aop和反射不同的一点是：反射可以帮助传入实参；而Aop只能获取方法被传入的实参进行处理，而不能传入参数（毕竟Aop的原衷是不影响方法本身的情况下进行对方法的增强。<ul>
-<li>而实参在监听器方法里传入</li>
-</ul>
-</li>
-<li>这里不能通过获取所有Event注解， 再分别进行处理，而需要获取@Events，再通过它的value()元素获取所有的@Event注解 [即使表面上可以在方法上多写几个@Event注解。但实际是<code>@Events(&#123;@Event(...), @Event(...)&#125;)</code>,但是用反射好像可以直接获取多个@Event注解进行遍历处理</li>
-<li>注意通知的方法<code>around()</code>传参不能直接传入，而是需要在<code>@Around</code>中传入。否则会<code>报空</code>。（其实是获取方法上的@Events注解，然后传进around()方法</li>
-</ul>
-<h2 id="？比较与总结"><a href="#？比较与总结" class="headerlink" title="？比较与总结"></a>？比较与总结</h2><p>总的来说，各有优缺。</p>
-<ul>
-<li><p>反射：先进行判断，然后再根据判断结果来决定是否执行方法</p>
-</li>
-<li><p>Aop：要先调用方法（注意还并没有实际执行），进而会触发通知，用通知中的方法进行逻辑判断</p>
-</li>
-<li><p>反射代码较多，但是处理上更灵活，不必先调用方法</p>
-</li>
-<li><p>Aop要先调用方法，才会触发通知，但是代码量更少，更简洁</p>
-</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>注解Aopbot</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Go-Web</title>
-    <url>/2022/07/05/Go-Web/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>最近看了下<code>Go Web编程</code>这本书，再去看了下源码，想对<code>net/http</code>包中的一些关键的函数，接口的定义和关系做一个记录</p>
-<h3 id="多路复用器"><a href="#多路复用器" class="headerlink" title="? 多路复用器"></a>? 多路复用器</h3><blockquote>
-<p>Go中web应用需要对客户端的请求响应，为了将不同请求URL转发到不同的处理器(Handler)进行处理需要用到多路复用器(ServeMux)</p>
-</blockquote>
-<ul>
-<li><p><code>(var) DefaultServeMux</code>: <code>ListenAndServe(string, Handler) error</code> 中第二个参数的默认值，实质是一个指向<code>ServeMux</code>类型的指针，是<code>ServeMux</code>的一个实例，但<code>ServeMux</code>同时又实现了Handler接口(故可以充当第二个参数的默认值)</p>
-<p><strong>源码:</strong></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// DefaultServeMux is the default ServeMux used by Serve.</span></span><br><span class="line"><span class="keyword">var</span> DefaultServeMux = &amp;defaultServeMux</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> defaultServeMux ServeMux</span><br></pre></td></tr></table></figure>
-
-
-</li>
-<li><p><code>(func) NewServeMux()</code>: 返回一个<code>ServeMux</code></p>
-</li>
-<li><p><code>(struct) ServeMux</code>: 多路复用器结构，负责URL的路径和处理的映射，以及通过<code>自身的ServeHTTP</code>方法调用URL映射对应的<code>处理器的ServeHTTP方法</code></p>
-<p><strong>源码:</strong></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> ServeMux <span class="keyword">struct</span> &#123;</span><br><span class="line">	mu    sync.RWMutex</span><br><span class="line">	m     <span class="keyword">map</span>[<span class="type">string</span>]muxEntry</span><br><span class="line">	es    []muxEntry <span class="comment">// slice of entries sorted from longest to shortest.</span></span><br><span class="line">	hosts <span class="type">bool</span>       <span class="comment">// whether any patterns contain hostnames</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="服务器"><a href="#服务器" class="headerlink" title="?  服务器"></a>?  服务器</h3><blockquote>
-<p>负责启动监听和配置服务</p>
-<p>如果简单配置可以直接调<code>http.ListenAndServe</code>函数来进行监听，复杂配置则需要构建一个Server结构体来调用其ListenAndServe方法</p>
-</blockquote>
-<ul>
-<li><p><code>(struct) Server</code>: 用于细化配置的结构体</p>
-<p><strong>源码:</strong></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Server <span class="keyword">struct</span> &#123;</span><br><span class="line">    Addr <span class="type">string</span></span><br><span class="line">    Handler Handler</span><br><span class="line">    </span><br><span class="line">    TLSConfig *tls.Config</span><br><span class="line">    </span><br><span class="line">    ReadTimeout time.Duration</span><br><span class="line">    ReadHeaderTimeout time.Duration</span><br><span class="line">    WriteTimeout time.Duration</span><br><span class="line">    IdleTimeout time.Duration</span><br><span class="line">    </span><br><span class="line">    MaxHeaderBytes <span class="type">int</span></span><br><span class="line">    </span><br><span class="line">    TLSNextProto <span class="keyword">map</span>[<span class="type">string</span>]<span class="function"><span class="keyword">func</span><span class="params">(*Server, *tls.Conn, Handler)</span></span></span><br><span class="line">    </span><br><span class="line">    ConnState <span class="function"><span class="keyword">func</span><span class="params">(net.Conn, ConnState)</span></span></span><br><span class="line">    </span><br><span class="line">    ErrorLog *log.Logger</span><br><span class="line">    </span><br><span class="line">    BaseContext <span class="function"><span class="keyword">func</span><span class="params">(net.Listener)</span></span> context.Context</span><br><span class="line">    ConnContext <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, c net.Conn)</span></span> context.Context</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>(func) ListenAndServe(addr string, handler Handler) error</code>: 开启监听和进行处理，是整个web应用的启动器</p>
-</li>
-<li><p><code>(func) ListenAndServeTLS(addr, certFile, keyFile string, handler Handler) error</code>: ListenAndServe的https版本</p>
-</li>
-</ul>
-<h3 id="处理器和处理器函数"><a href="#处理器和处理器函数" class="headerlink" title="?  处理器和处理器函数"></a>?  处理器和处理器函数</h3><blockquote>
-<p>Go web中实际处理请求的函数或类型</p>
-<p>处理器：实现了Handler接口的任意类型，可以是结构体，函数类型等</p>
-<p>处理器函数：普通的函数，但是必须要以 <code>http.ResponseWriter</code>和<code>*http.Request</code>为参数</p>
-</blockquote>
-<ul>
-<li><p><code>(interface) Handler &#123;ServeHTTP(ResponseWriter, *Request)&#125;</code>: 处理器接口，实现了该接口的即为处理器</p>
-</li>
-<li><p><code>(func) http.Handle(pattern string, handler Handler)</code>: 将Handler和DefaultServeMux (或<code>自定义的ServeMux</code>) 绑定，使其处理<code>pattern</code>上的请求。实质是<code>ServeMux</code>的方法，方便调用故在http包中创建。<strong>实质:</strong></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// http.Handle</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Handle</span><span class="params">(pattern <span class="type">string</span>, handler Handleer)</span></span> &#123;</span><br><span class="line">    DefaultServeMux.Handle(pattern, handler)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在server.go源码中</span></span><br></pre></td></tr></table></figure>
-
-
-</li>
-<li><p><code>(func) http.HandleFunc(pattern string, handler func(ResponseWriter, *Request))</code>: 将处理器函数与<code>ServeMux</code>绑定并监听<code>pattern</code>路径。实质会被转换为一个<code>Handler</code>:</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// http.HandleFunc</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">HandleFunc</span><span class="params">(pattern <span class="type">string</span>, handler <span class="keyword">func</span>(ResponseWriter, *Request)</span></span>) &#123;</span><br><span class="line">    DefaultServeMux.HandleFunc(pattern, handler)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ServeMux.HandleFunc</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(mux *ServeMux)</span></span> HandleFunc(pattern <span class="type">string</span>, handler <span class="function"><span class="keyword">func</span><span class="params">(ResponseWriter, *Request)</span></span>) &#123;</span><br><span class="line">    mux.Handle(pattern, HandlerFunc(handler))</span><br><span class="line">&#125; <span class="comment">// 通过显式类型转换将底层类型相同的handler转换为HandlerFunc类型</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// HandlerFunc是个函数类型</span></span><br><span class="line"><span class="keyword">type</span> HandlerFunc <span class="function"><span class="keyword">func</span><span class="params">(ResponseWriter, *Request)</span></span></span><br><span class="line"><span class="comment">/*并且它实现了Handler接口，也就是说，</span></span><br><span class="line"><span class="comment">HandlerFunc类型是个处理器(Handler),</span></span><br><span class="line"><span class="comment">故调用HandleFunc方法实质是调用Handle方法，</span></span><br><span class="line"><span class="comment">且将一个普通函数类型的参数转换成了一个处理器</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(f HandlerFunc)</span></span> ServeHTTP(w ResponseWriter, r *Request) &#123;</span><br><span class="line">  f(w, r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
 ]]></content>
       <tags>
         <tag>Go</tag>
