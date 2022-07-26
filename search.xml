@@ -74,52 +74,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Python中的生成器</title>
-    <url>/2022/07/06/Generator-In-Python/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p><code>yield</code>是Python极其重要的一个关键字，它与Python中的<code>生成器</code>密切相关，然而<code>yield</code>的用法和<code>生成器</code>本身时不时让人困惑…</p>
-<h2 id="生成器和yield有什么用"><a href="#生成器和yield有什么用" class="headerlink" title="? 生成器和yield有什么用"></a>? 生成器和<code>yield</code>有什么用</h2><ul>
-<li><p>大多数情况下，使用<code>yield</code>都是为了将函数作为生成器使用(<code>yield</code>只能在函数中使用)</p>
-</li>
-<li><p>当有大量数据需要返回时生成器能够节省内存空间</p>
-</li>
-</ul>
-<h2 id="一些概念"><a href="#一些概念" class="headerlink" title="? 一些概念"></a>? 一些概念</h2><h3 id="可迭代对象"><a href="#可迭代对象" class="headerlink" title="? 可迭代对象"></a>? 可迭代对象</h3><blockquote>
-<p>Python中的任意对象，只要它定义了可以返回一个迭代器的<code>__iter__</code>方法，或者定义了可以支持下标索引的<code>__getitem__</code>方法，那么它就是一个可迭代对象。</p>
-<p>简单说，可迭代对象就是能提供迭代器的任意对象</p>
-</blockquote>
-<h3 id="迭代器"><a href="#迭代器" class="headerlink" title="? 迭代器"></a>? 迭代器</h3><blockquote>
-<p>任意对象，只要它定义了<code>next</code>（Python2）或<code>__next__</code>方法，那么它就是一个迭代器</p>
-</blockquote>
-<h3 id="迭代"><a href="#迭代" class="headerlink" title="? 迭代"></a>? 迭代</h3><blockquote>
-<p>用简单的话讲，它就是从某个地方（比如一个列表）取出一个元素的过程。当我们使用一个循环来遍历某个东西时，这个过程本身就叫迭代</p>
-</blockquote>
-<h2 id="生成器"><a href="#生成器" class="headerlink" title="? 生成器"></a>? 生成器</h2><h3 id="概念"><a href="#概念" class="headerlink" title="? 概念"></a>? 概念</h3><blockquote>
-<p>生成器也是一种迭代器，但是你只能对其迭代一次。这是因为它们并没有把所有的值存在内存中，而是在运行时生成值</p>
-<p>你通过遍历来使用它们，要么用一个”for”循环，要么将它们传递给任意可以进行迭代的函数（比如<code>next()</code>）或结构</p>
-<p>大多数时候生成器是以函数来实现的（当然，类也可以，但函数较为简便）。然而，它们并不返回一个值，而是<code>yield</code>（产生）一个值</p>
-</blockquote>
-<h3 id="一些例子"><a href="#一些例子" class="headerlink" title="? 一些例子"></a>? 一些例子</h3><p><strong>正常思路的斐波那契:</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fab</span>(<span class="params"><span class="built_in">max</span></span>):</span><br><span class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    L = [] <span class="comment"># 拿一个列表来存数据，提高复用性</span></span><br><span class="line">    <span class="keyword">while</span> n &lt; <span class="built_in">max</span>:</span><br><span class="line">        L.append(b)</span><br><span class="line">        a, b = b, a + b</span><br><span class="line">        n = n + <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> L</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> fab(<span class="number">5</span>):</span><br><span class="line">    <span class="built_in">print</span>(n)</span><br></pre></td></tr></table></figure>
-
-<p>这么做会使该函数的内存占用随参数<code>max</code>增大而增加。</p>
-<p><strong>生成器类构建的斐波那契:</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Fab</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, <span class="built_in">max</span></span>):</span><br><span class="line">        self.<span class="built_in">max</span> = <span class="built_in">max</span></span><br><span class="line">        self.n, self.a, self.b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__iter__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__next__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> self.n &lt; self.<span class="built_in">max</span>:</span><br><span class="line">            r = self.b</span><br><span class="line">            self.a, self.b = self.b, self.a + self.b</span><br><span class="line">            self.n = self.n + <span class="number">1</span></span><br><span class="line">            <span class="keyword">return</span> r</span><br><span class="line">        <span class="keyword">raise</span> StopIteration()</span><br><span class="line">        </span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> Fab(<span class="number">5</span>):</span><br><span class="line">    <span class="built_in">print</span>(n)</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>生成器函数构建的斐波那契:</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fab</span>(<span class="params">n</span>):</span><br><span class="line">    a = b = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(n):</span><br><span class="line">        <span class="keyword">yield</span> a</span><br><span class="line">        a, b = b, a + b</span><br></pre></td></tr></table></figure>
-
-<h3 id="一些关于迭代器的内置函数"><a href="#一些关于迭代器的内置函数" class="headerlink" title="? 一些关于迭代器的内置函数"></a>? 一些关于迭代器的内置函数</h3><ul>
-<li><code>next()</code>  获取迭代器的下一个值</li>
-<li><code>iter()</code>  以可迭代对象（比如字符串）为参数，返回一个迭代器对象</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>Python</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Go中的请求和响应</title>
     <url>/2022/07/23/Go-Request-Response/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>记录一下<code>go</code>中的请求和响应处理</p>
@@ -242,6 +196,52 @@
 ]]></content>
       <tags>
         <tag>Go</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Python中的生成器</title>
+    <url>/2022/07/06/Generator-In-Python/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p><code>yield</code>是Python极其重要的一个关键字，它与Python中的<code>生成器</code>密切相关，然而<code>yield</code>的用法和<code>生成器</code>本身时不时让人困惑…</p>
+<h2 id="生成器和yield有什么用"><a href="#生成器和yield有什么用" class="headerlink" title="? 生成器和yield有什么用"></a>? 生成器和<code>yield</code>有什么用</h2><ul>
+<li><p>大多数情况下，使用<code>yield</code>都是为了将函数作为生成器使用(<code>yield</code>只能在函数中使用)</p>
+</li>
+<li><p>当有大量数据需要返回时生成器能够节省内存空间</p>
+</li>
+</ul>
+<h2 id="一些概念"><a href="#一些概念" class="headerlink" title="? 一些概念"></a>? 一些概念</h2><h3 id="可迭代对象"><a href="#可迭代对象" class="headerlink" title="? 可迭代对象"></a>? 可迭代对象</h3><blockquote>
+<p>Python中的任意对象，只要它定义了可以返回一个迭代器的<code>__iter__</code>方法，或者定义了可以支持下标索引的<code>__getitem__</code>方法，那么它就是一个可迭代对象。</p>
+<p>简单说，可迭代对象就是能提供迭代器的任意对象</p>
+</blockquote>
+<h3 id="迭代器"><a href="#迭代器" class="headerlink" title="? 迭代器"></a>? 迭代器</h3><blockquote>
+<p>任意对象，只要它定义了<code>next</code>（Python2）或<code>__next__</code>方法，那么它就是一个迭代器</p>
+</blockquote>
+<h3 id="迭代"><a href="#迭代" class="headerlink" title="? 迭代"></a>? 迭代</h3><blockquote>
+<p>用简单的话讲，它就是从某个地方（比如一个列表）取出一个元素的过程。当我们使用一个循环来遍历某个东西时，这个过程本身就叫迭代</p>
+</blockquote>
+<h2 id="生成器"><a href="#生成器" class="headerlink" title="? 生成器"></a>? 生成器</h2><h3 id="概念"><a href="#概念" class="headerlink" title="? 概念"></a>? 概念</h3><blockquote>
+<p>生成器也是一种迭代器，但是你只能对其迭代一次。这是因为它们并没有把所有的值存在内存中，而是在运行时生成值</p>
+<p>你通过遍历来使用它们，要么用一个”for”循环，要么将它们传递给任意可以进行迭代的函数（比如<code>next()</code>）或结构</p>
+<p>大多数时候生成器是以函数来实现的（当然，类也可以，但函数较为简便）。然而，它们并不返回一个值，而是<code>yield</code>（产生）一个值</p>
+</blockquote>
+<h3 id="一些例子"><a href="#一些例子" class="headerlink" title="? 一些例子"></a>? 一些例子</h3><p><strong>正常思路的斐波那契:</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fab</span>(<span class="params"><span class="built_in">max</span></span>):</span><br><span class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    L = [] <span class="comment"># 拿一个列表来存数据，提高复用性</span></span><br><span class="line">    <span class="keyword">while</span> n &lt; <span class="built_in">max</span>:</span><br><span class="line">        L.append(b)</span><br><span class="line">        a, b = b, a + b</span><br><span class="line">        n = n + <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> L</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> fab(<span class="number">5</span>):</span><br><span class="line">    <span class="built_in">print</span>(n)</span><br></pre></td></tr></table></figure>
+
+<p>这么做会使该函数的内存占用随参数<code>max</code>增大而增加。</p>
+<p><strong>生成器类构建的斐波那契:</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Fab</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, <span class="built_in">max</span></span>):</span><br><span class="line">        self.<span class="built_in">max</span> = <span class="built_in">max</span></span><br><span class="line">        self.n, self.a, self.b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__iter__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> self</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__next__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> self.n &lt; self.<span class="built_in">max</span>:</span><br><span class="line">            r = self.b</span><br><span class="line">            self.a, self.b = self.b, self.a + self.b</span><br><span class="line">            self.n = self.n + <span class="number">1</span></span><br><span class="line">            <span class="keyword">return</span> r</span><br><span class="line">        <span class="keyword">raise</span> StopIteration()</span><br><span class="line">        </span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> Fab(<span class="number">5</span>):</span><br><span class="line">    <span class="built_in">print</span>(n)</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>生成器函数构建的斐波那契:</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fab</span>(<span class="params">n</span>):</span><br><span class="line">    a = b = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(n):</span><br><span class="line">        <span class="keyword">yield</span> a</span><br><span class="line">        a, b = b, a + b</span><br></pre></td></tr></table></figure>
+
+<h3 id="一些关于迭代器的内置函数"><a href="#一些关于迭代器的内置函数" class="headerlink" title="? 一些关于迭代器的内置函数"></a>? 一些关于迭代器的内置函数</h3><ul>
+<li><code>next()</code>  获取迭代器的下一个值</li>
+<li><code>iter()</code>  以可迭代对象（比如字符串）为参数，返回一个迭代器对象</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Python</tag>
       </tags>
   </entry>
   <entry>
