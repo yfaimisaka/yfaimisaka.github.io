@@ -179,7 +179,7 @@
     
     
         <span class="article-wordcount article-meta-item">
-            <i class="fas fa-file-word"></i>&nbsp;<span>123 Words</span>
+            <i class="fas fa-file-word"></i>&nbsp;<span>184 Words</span>
         </span>
     
     
@@ -198,14 +198,11 @@
         <div class="article-content markdown-body">
             <h2 id="前言"><a href="#前言" class="headerlink" title="? 前言"></a>? 前言</h2><p>记录一下go并发的实践经验</p>
 <h3 id="内容"><a href="#内容" class="headerlink" title="? 内容"></a>? 内容</h3><ul>
-<li><p>当出现死锁时，考虑是否已用<code>make</code>将声明的<code>chan</code>初始化</p>
-</li>
-<li><p>永远在<strong>不同的</strong><code>goroutine</code>中发送和接收<code>chan</code>中的值，不要试图在main中发送并接收值</p>
-</li>
-<li><p>如果<code>chan</code>是<strong>无缓冲的</strong>，总是<strong>先</strong>运行一个<code>goroutine</code>来发送或接收值，<strong>然后</strong>再在main(或其它<code>goroutine</code>)中接收或发送</p>
-</li>
-<li><p>想要在<code>main</code>中同时收发<code>chan</code>中的值，考虑使用<strong>缓冲通道</strong></p>
-</li>
+<li>当出现死锁时，考虑是否已用<code>make</code>将声明的<code>chan</code>初始化</li>
+<li>永远在<strong>不同的</strong><code>goroutine</code>中发送和接收<code>chan</code>中的值，不要试图在main中发送并接收值</li>
+<li>如果<code>chan</code>是<strong>无缓冲的</strong>，总是<strong>先</strong>运行一个<code>goroutine</code>来发送或接收值，<strong>然后</strong>再在main(或其它<code>goroutine</code>)中接收或发送</li>
+<li>想要在<code>main</code>中同时收发<code>chan</code>中的值，考虑使用<strong>缓冲通道</strong></li>
+<li>总是考虑<strong>两个互相收发</strong>的<code>chan</code>之间造成的死锁问题(比如两个<code>chan</code>同时发送给对方，此时没有人接收)，可以通过将一个发送操作放在单独的<code>goroutine</code>中来解决</li>
 </ul>
 
         </div>
